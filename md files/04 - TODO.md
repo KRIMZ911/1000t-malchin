@@ -11,15 +11,15 @@
 - [x] Add a Unity-specific `.gitignore` (ignore `Library/`, `Temp/`, `Obj/`, `Build/`, `Logs/`, `.vs/`)
 - [x] Make first commit
 - [x] Point Claude Code at the `claude game` root and confirm it can read this vault
-- [ ] Do a throwaway Android build to confirm the build pipeline works on a device/emulator
+- [x] Do a throwaway Android build to confirm the build pipeline works on a device/emulator
 
 ## NEXT — Phase 1: Economy skeleton
-- [ ] Create `Scripts/Economy/` folder
-- [ ] Define `LivestockType` (sheep, cattle, special horses) data
-- [ ] Create a herd manager that stores current counts
-- [ ] Implement passive growth over time (a tick system)
-- [ ] Implement local save/load (e.g. JSON to disk)
-- [ ] Build a simple on-screen UI showing live counts
+- [x] Create `Scripts/Economy/` folder
+- [x] Define `LivestockType` (sheep, cattle, special horses) data
+- [x] Create a herd manager that stores current counts
+- [x] Implement passive growth over time (a tick system)
+- [x] Implement local save/load (e.g. JSON to disk)
+- [x] Build a simple on-screen UI showing live counts
 
 ## LATER — captured so we don't forget
 - [ ] Ger data model + upgrade system (Phase 2)
