@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Malchin.Economy
 {
@@ -21,8 +22,10 @@ namespace Malchin.Economy
         [Tooltip("Maximum herd size (can be raised by Herding Ger upgrades).")]
         public int baseCap;
 
-        [Tooltip("How many are added per tick (before Herding Ger bonuses).")]
-        public float baseGrowthPerTick;
+        [Tooltip("How many are added per real-time MINUTE (before Herding Ger bonuses). " +
+                 "Drives both in-session and offline growth.")]
+        [FormerlySerializedAs("baseGrowthPerTick")]
+        public float baseGrowthPerMinute;
 
         [Tooltip("Color tint for placeholder UI icons.")]
         public Color placeholderColor = Color.white;

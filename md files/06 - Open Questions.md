@@ -18,7 +18,7 @@
 ## Tech
 - [ ] Which backend exactly (PlayFab vs Firebase) — decide before Phase 6.
 - [ ] Skeletal animation tool — Unity 2D Animation package vs Spine (Spine costs money but is industry standard).
-- [ ] Save data format and migration strategy when local → backend.
+- [~] Save data format and migration strategy when local → backend. (Partial: local JSON with `version` field + timestamp chosen — see Decisions Log 2026-06-22. Backend migration path still open for Phase 6.)
 
 ## Cultural
 - [ ] Source for authentic Mongolian names, ger architecture, clothing references — consider consulting someone knowledgeable to avoid caricature.

@@ -25,3 +25,9 @@ three.js was considered for assets and rejected. It is a JavaScript web-3D rende
 
 ## Process: vertical slice first
 Three big systems (herding, building, combat) is ambitious. We build a minimal connected version of all three before deepening any one, to avoid building systems that don't fit together.
+
+## Economy: timestamp-based growth with offline/idle progression (2026-06-22)
+The herd grows on a real-time rate (`baseGrowthPerMinute` per livestock type), computed from elapsed wall-clock time — both continuously in-session and in one batch on load for the time the app was closed. Chosen over a simple in-session-only tick because idle generation / "come back → herd has grown" is the core return-to-game hook of the genre (see `01 - Game Design`). Growth is always clamped to each type's cap, so being away longer never exceeds the cap. Decided to build this in Phase 1 rather than defer to polish, to avoid reworking the save format after gers/heroes add more save data.
+
+## Save format: versioned JSON, local-first (2026-06-22)
+Save is a single JSON file in `Application.persistentDataPath` carrying a `version` field and a `lastSavedUnixSeconds` timestamp. The version field exists so saves can be migrated when the schema grows and when we move local → backend (Phase 6). Partially resolves the "save data format and migration strategy" open question.
