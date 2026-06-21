@@ -6,6 +6,10 @@
 [Bb]uilds/
 [Ll]ogs/
 [Uu]ser[Ss]ettings/
+.utmp/
+
+# Claude Code local state
+.claude/
 
 # MemoryCaptures can get large
 [Mm]emory[Cc]aptures/
