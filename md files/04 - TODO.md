@@ -6,11 +6,11 @@
 - [x] Install Unity Hub + Unity 6 (`6000.0.46f1`)
 - [x] Create Unity project (Universal 2D)
 - [x] Install Obsidian + create vault
-- [ ] Put this vault inside `claude game/obsidian/`
-- [ ] Initialize Git in the `claude game` root
-- [ ] Add a Unity-specific `.gitignore` (ignore `Library/`, `Temp/`, `Obj/`, `Build/`, `Logs/`, `.vs/`)
-- [ ] Make first commit
-- [ ] Point Claude Code at the `claude game` root and confirm it can read this vault
+- [x] Put this vault inside `claude game/md files/` (vault is in `md files/`, readable by Claude Code)
+- [x] Initialize Git in the `claude game` root
+- [x] Add a Unity-specific `.gitignore` (ignore `Library/`, `Temp/`, `Obj/`, `Build/`, `Logs/`, `.vs/`)
+- [x] Make first commit
+- [x] Point Claude Code at the `claude game` root and confirm it can read this vault
 - [ ] Do a throwaway Android build to confirm the build pipeline works on a device/emulator
 
 ## NEXT — Phase 1: Economy skeleton
