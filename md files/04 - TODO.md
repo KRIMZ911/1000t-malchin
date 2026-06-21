@@ -1,0 +1,38 @@
+# 04 — TODO
+
+> Live task list. Work top-down. `- [ ]` = not done, `- [x]` = done. Claude Code: implement the next unchecked task in the current phase, then check it off.
+
+## NOW — Phase 0: Setup
+- [x] Install Unity Hub + Unity 6 (`6000.0.46f1`)
+- [x] Create Unity project (Universal 2D)
+- [x] Install Obsidian + create vault
+- [ ] Put this vault inside `claude game/obsidian/`
+- [ ] Initialize Git in the `claude game` root
+- [ ] Add a Unity-specific `.gitignore` (ignore `Library/`, `Temp/`, `Obj/`, `Build/`, `Logs/`, `.vs/`)
+- [ ] Make first commit
+- [ ] Point Claude Code at the `claude game` root and confirm it can read this vault
+- [ ] Do a throwaway Android build to confirm the build pipeline works on a device/emulator
+
+## NEXT — Phase 1: Economy skeleton
+- [ ] Create `Scripts/Economy/` folder
+- [ ] Define `LivestockType` (sheep, cattle, special horses) data
+- [ ] Create a herd manager that stores current counts
+- [ ] Implement passive growth over time (a tick system)
+- [ ] Implement local save/load (e.g. JSON to disk)
+- [ ] Build a simple on-screen UI showing live counts
+
+## LATER — captured so we don't forget
+- [ ] Ger data model + upgrade system (Phase 2)
+- [ ] Minimal lane combat (Phase 3)
+- [ ] Minimal gacha summon (Phase 4)
+- [ ] Wire the full loop together (Phase 5)
+- [ ] Event banners + foreign fighters (Phase 6)
+- [ ] Backend (PlayFab/Firebase) before any real money (Phase 6)
+- [ ] IAP + drop-rate disclosure compliance (Phase 6)
+- [ ] Android store submission (Phase 6)
+- [ ] iOS build via Mac/cloud (Phase 6)
+
+## Parking lot (ideas, not scheduled)
+- [ ] Goats / yaks / camels as extra livestock
+- [ ] Seasons/weather affecting herd growth
+- [ ] Clan/social features (would require more backend — keep single-player for now)

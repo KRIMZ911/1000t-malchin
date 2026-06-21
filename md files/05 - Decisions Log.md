@@ -1,0 +1,27 @@
+# 05 — Decisions Log
+
+> Why we chose what we chose. Add a dated entry whenever a real decision is made, so future-you (and Claude Code) understand the reasoning.
+
+## Engine: Unity 6 LTS (`6000.0.46f1`)
+Stable long-term-support release, huge ecosystem, proven cross-platform export to Android + iOS, best tooling for this genre. LTS = supported for years, right call for a project meant to ship.
+
+## Render pipeline: Universal 2D (URP)
+URP is the modern, mobile-optimized pipeline. Chosen over Built-in (legacy) for performance on a wide range of phones, and over HDRP (console/PC-grade, too heavy for mobile). 2D variant matches an Arknights-style game.
+
+## Dimension: 2D / 2.5D, not 3D
+Reference game (Arknights) is fundamentally 2D — sprites, illustrated characters, UI screens. The "2.5D" feel comes from layered sprites, parallax, and skeletal animation, not 3D models. Starting from the 2D template gives correct defaults.
+
+## Genre: single-player gacha (not PvP like Clash of Clans)
+Chosen to keep costs low early and avoid the heavy always-online server requirement of competitive multiplayer. Entertainment comes from collection + gacha + lane combat, like Arknights.
+
+## Backend: deferred, managed service later (likely PlayFab)
+Early offline vertical slice uses local save only — no hosting cost. A backend is required before real-money gacha ships, because purchases and pull rates must be server-validated to prevent local-file cheating. Managed services (PlayFab/Firebase) have free tiers that scale with revenue, matching the "reinvest once earning" plan.
+
+## Dev OS: Windows
+All dev + Android builds happen on Windows. A Mac (owned or cloud) is only needed for the final iOS/App Store step, which Apple mandates. iOS is deferred to after Android.
+
+## Art: sourced from artists / AI image tools, NOT from code (three.js rejected)
+three.js was considered for assets and rejected. It is a JavaScript web-3D rendering library — not an art generator, not part of Unity, not for 2D. It cannot produce Arknights-style character art; nothing in code can. Character art is the biggest cost/quality driver of a gacha game and comes from commissioned artists, asset packs, or AI image generators. Claude Code builds the systems that use the art but does not create art. Plan: placeholders now, commissioned art for key heroes once the game is proven fun.
+
+## Process: vertical slice first
+Three big systems (herding, building, combat) is ambitious. We build a minimal connected version of all three before deepening any one, to avoid building systems that don't fit together.
