@@ -8,54 +8,40 @@ namespace Malchin.Combat
     public enum BattleState { Idle, Fighting, Won, Lost }
 
     /// <summary>
-    /// Runs a single-lane battle off in its own world region. The camera pans
-    /// there on StartBattle and back on Return. Spawns enemy waves from the top,
-    /// lets the player deploy units, resolves win/lose, and rewards livestock.
+    /// Runs a grid battle defined by a LevelDefinition. Builds the grid, plays the
+    /// spawn timeline, lets the player deploy their squad onto cells, resolves
+    /// win/lose, and rewards livestock. Lives in its own world region; the camera
+    /// pans there on StartBattle and back on Return.
     /// </summary>
     public class BattleController : MonoBehaviour
     {
         public static BattleController Instance { get; private set; }
         private static readonly List<CombatUnit> _units = new List<CombatUnit>();
 
-        [Header("Unit definitions")]
+        [Header("Level + grid")]
+        public LevelDefinition level;
+        public BattleGrid grid;
+        public Vector3 battleAnchor = new Vector3(100f, 0f, 0f);
+
+        [Header("Player test squad (Stage 1)")]
         public CombatUnitDefinition archerDef;
         public CombatUnitDefinition horsemanDef;
-        public CombatUnitDefinition enemyDef;
-
-        [Header("Battlefield (world)")]
-        public Vector3 battleAnchor = new Vector3(100f, 0f, 0f);
-        public float laneHalfHeight = 6f;   // base at anchor.y - this; enemies spawn at anchor.y + this
-        public float battleCamSize = 7.5f;
-
-        [Header("Wave")]
-        public int enemyCount = 8;
-        public float spawnInterval = 1.3f;
-        public float baseMaxHP = 10f;
-
-        [Header("Deploy limits")]
         public int archerCount = 4;
         public int horsemanCount = 4;
-
-        [Header("Reward on win")]
-        public int rewardSheep = 40;
-        public int rewardCattle = 6;
-        public int rewardHorse = 1;
 
         public BattleHUD hud;
 
         public BattleState State { get; private set; } = BattleState.Idle;
         public bool IsFighting => State == BattleState.Fighting;
 
-        private float BaseY => battleAnchor.y - laneHalfHeight;
-        private float SpawnY => battleAnchor.y + laneHalfHeight;
-        private float LaneX => battleAnchor.x;
-
         private float _baseHP;
-        private int _enemiesToSpawn;
+        private float _elapsed;
+        private int _spawnIndex;
         private int _enemiesAlive;
-        private float _spawnTimer;
+        private List<EnemySpawn> _schedule;
         private int _archersLeft, _horsemenLeft;
         private CombatUnitDefinition _selected;
+        private readonly Dictionary<Vector2Int, CombatUnit> _playerCells = new Dictionary<Vector2Int, CombatUnit>();
 
         private Camera _cam;
         private Vector3 _savedCamPos;
@@ -70,10 +56,7 @@ namespace Malchin.Combat
 
         // ── Unit registry ─────────────────────────────────────────────────────
 
-        public static void Register(CombatUnit u)
-        {
-            if (!_units.Contains(u)) _units.Add(u);
-        }
+        public static void Register(CombatUnit u) { if (!_units.Contains(u)) _units.Add(u); }
 
         public static void Unregister(CombatUnit u)
         {
@@ -83,6 +66,7 @@ namespace Malchin.Combat
 
         void OnUnitRemoved(CombatUnit u)
         {
+            if (u.occupiesCell) _playerCells.Remove(u.cell);
             if (State == BattleState.Fighting && u.IsEnemy)
             {
                 _enemiesAlive = Mathf.Max(0, _enemiesAlive - 1);
@@ -96,26 +80,25 @@ namespace Malchin.Combat
         public void StartBattle()
         {
             if (State == BattleState.Fighting) return;
+            if (level == null) { Debug.LogWarning("BattleController: no LevelDefinition assigned."); return; }
+            if (grid == null) { Debug.LogWarning("BattleController: no BattleGrid assigned."); return; }
+
             ClearUnits();
+            grid.transform.position = battleAnchor;
+            grid.Configure(level.gridWidth, level.gridHeight, level.cellSize);
 
             State = BattleState.Fighting;
-            _baseHP = baseMaxHP;
-            _enemiesToSpawn = enemyCount;
+            _baseHP = level.baseMaxHP;
+            _elapsed = 0f;
+            _spawnIndex = 0;
             _enemiesAlive = 0;
-            _spawnTimer = 0.5f;
+            _schedule = level.SortedSpawns();
             _archersLeft = archerCount;
             _horsemenLeft = horsemanCount;
             _selected = archerDef;
+            _playerCells.Clear();
 
-            if (_cam == null) _cam = Camera.main;
-            if (_cam != null)
-            {
-                _savedCamPos = _cam.transform.position;
-                _savedCamSize = _cam.orthographicSize;
-                _cam.transform.position = new Vector3(LaneX, battleAnchor.y, _savedCamPos.z);
-                _cam.orthographicSize = battleCamSize;
-            }
-
+            FrameCamera();
             if (hud != null) hud.OnBattleStarted();
             UpdateHud();
         }
@@ -123,19 +106,22 @@ namespace Malchin.Combat
         void Update()
         {
             if (State != BattleState.Fighting) return;
-            if (_enemiesToSpawn > 0)
+
+            _elapsed += Time.deltaTime;
+            while (_schedule != null && _spawnIndex < _schedule.Count && _schedule[_spawnIndex].time <= _elapsed)
             {
-                _spawnTimer -= Time.deltaTime;
-                if (_spawnTimer <= 0f) { SpawnEnemy(); _spawnTimer = spawnInterval; }
+                SpawnFromEntry(_schedule[_spawnIndex]);
+                _spawnIndex++;
             }
         }
 
-        void SpawnEnemy()
+        void SpawnFromEntry(EnemySpawn entry)
         {
-            _enemiesToSpawn--;
+            if (entry.enemy == null) return;
             _enemiesAlive++;
-            float x = LaneX + Random.Range(-0.6f, 0.6f);
-            SpawnUnit(enemyDef, CombatTeam.Enemy, new Vector3(x, SpawnY, 0f));
+            int col = Mathf.Clamp(entry.column, 0, level.gridWidth - 1);
+            var pos = new Vector3(grid.ColumnX(col), grid.TopY + 0.4f, 0f);
+            SpawnUnit(entry.enemy, CombatTeam.Enemy, pos);
             UpdateHud();
         }
 
@@ -144,7 +130,7 @@ namespace Malchin.Combat
             var go = new GameObject($"{team}_{def.id}");
             go.transform.position = pos;
             var u = go.AddComponent<CombatUnit>();
-            u.Init(def, team, BaseY);
+            u.Init(def, team, grid.BaseY);
             return u;
         }
 
@@ -155,13 +141,22 @@ namespace Malchin.Combat
 
         public void OnFieldTapped(Vector3 worldPos)
         {
-            if (State != BattleState.Fighting || _selected == null) return;
+            if (State != BattleState.Fighting || _selected == null || grid == null) return;
+
+            int col = grid.WorldToColumn(worldPos);
+            int row = grid.WorldToRow(worldPos);
+            var cell = new Vector2Int(col, row);
+            if (_playerCells.ContainsKey(cell)) return;            // one unit per cell
+
             bool isArcher = _selected == archerDef;
             if (isArcher && _archersLeft <= 0) return;
             if (!isArcher && _horsemenLeft <= 0) return;
 
-            float y = Mathf.Clamp(worldPos.y, BaseY + 0.5f, battleAnchor.y + 2f);
-            SpawnUnit(_selected, CombatTeam.Player, new Vector3(LaneX, y, 0f));
+            var u = SpawnUnit(_selected, CombatTeam.Player, grid.CellCenter(col, row));
+            u.cell = cell;
+            u.occupiesCell = true;
+            _playerCells[cell] = u;
+
             if (isArcher) _archersLeft--; else _horsemenLeft--;
             UpdateHud();
         }
@@ -175,7 +170,8 @@ namespace Malchin.Combat
 
         void CheckWin()
         {
-            if (State == BattleState.Fighting && _enemiesToSpawn <= 0 && _enemiesAlive <= 0)
+            bool allSpawned = _schedule == null || _spawnIndex >= _schedule.Count;
+            if (State == BattleState.Fighting && allSpawned && _enemiesAlive <= 0)
                 EndBattle(true);
         }
 
@@ -184,12 +180,13 @@ namespace Malchin.Combat
             State = won ? BattleState.Won : BattleState.Lost;
             if (won && HerdManager.Instance != null)
             {
-                HerdManager.Instance.Add("sheep", rewardSheep);
-                HerdManager.Instance.Add("cattle", rewardCattle);
-                HerdManager.Instance.Add("special_horse", rewardHorse);
+                HerdManager.Instance.Add("sheep", level.rewardSheep);
+                HerdManager.Instance.Add("cattle", level.rewardCattle);
+                HerdManager.Instance.Add("special_horse", level.rewardHorse);
                 SaveSystem.Save();
             }
-            if (hud != null) hud.OnBattleEnded(won, rewardSheep, rewardCattle, rewardHorse);
+            if (hud != null)
+                hud.OnBattleEnded(won, level.rewardSheep, level.rewardCattle, level.rewardHorse);
         }
 
         public void Return()
@@ -209,6 +206,25 @@ namespace Malchin.Combat
             for (int i = _units.Count - 1; i >= 0; i--)
                 if (_units[i] != null) Destroy(_units[i].gameObject);
             _units.Clear();
+            _playerCells.Clear();
+        }
+
+        // ── Camera ────────────────────────────────────────────────────────────
+
+        void FrameCamera()
+        {
+            if (_cam == null) _cam = Camera.main;
+            if (_cam == null) return;
+            _savedCamPos = _cam.transform.position;
+            _savedCamSize = _cam.orthographicSize;
+
+            float w = level.gridWidth * level.cellSize;
+            float h = level.gridHeight * level.cellSize;
+            float sizeForWidth = (w / 2f + 1f) / (9f / 16f);
+            float sizeForHeight = h / 2f + 1f;
+
+            _cam.transform.position = new Vector3(battleAnchor.x, grid.CenterY, _savedCamPos.z);
+            _cam.orthographicSize = Mathf.Max(sizeForWidth, sizeForHeight);
         }
 
         // ── Queries ───────────────────────────────────────────────────────────
@@ -229,12 +245,13 @@ namespace Malchin.Combat
 
         void UpdateHud()
         {
-            if (hud != null)
-                hud.Refresh(_baseHP, baseMaxHP, _enemiesToSpawn + _enemiesAlive, _archersLeft, _horsemenLeft);
+            if (hud == null) return;
+            int remaining = (_schedule != null ? _schedule.Count - _spawnIndex : 0) + _enemiesAlive;
+            hud.Refresh(_baseHP, level != null ? level.baseMaxHP : 0f, remaining, _archersLeft, _horsemenLeft);
         }
     }
 
-    /// <summary>Sits on the battlefield collider and forwards taps as deploy requests.</summary>
+    /// <summary>Sits on the battle grid collider and forwards taps as deploy requests.</summary>
     public class BattleFieldInput : MonoBehaviour, IPointerClickHandler
     {
         public void OnPointerClick(PointerEventData e)

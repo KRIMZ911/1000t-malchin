@@ -13,6 +13,10 @@ namespace Malchin.Combat
         public CombatUnitDefinition def;
         public CombatTeam team;
 
+        // Set for player units placed on a grid cell, so the cell frees on death.
+        [System.NonSerialized] public Vector2Int cell;
+        [System.NonSerialized] public bool occupiesCell;
+
         private float _hp;
         private float _attackTimer;
         private SpriteRenderer _body;

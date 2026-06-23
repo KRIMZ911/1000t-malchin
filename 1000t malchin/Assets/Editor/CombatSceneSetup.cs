@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -21,7 +22,6 @@ namespace Malchin.EditorTools
     {
         private const string DataFolder = "Assets/Data";
         private static readonly Vector3 Anchor = new Vector3(100f, 0f, 0f);
-        private const float LaneHalfHeight = 6f;
 
         [MenuItem("Malchin/Setup Combat Scene")]
         public static void Setup()
@@ -45,18 +45,21 @@ namespace Malchin.EditorTools
             EnsureEventSystem();
             EnsurePhysics2DRaycaster();
 
-            // 3. Battlefield ----------------------------------------------------------
-            BuildBattlefield();
+            // 3. Battlefield grid -----------------------------------------------------
+            var grid = BuildBattleGrid();
 
-            // 4. BattleController -----------------------------------------------------
+            // 4. Sample level ---------------------------------------------------------
+            var level = CreateSampleLevel(raider);
+
+            // 5. BattleController -----------------------------------------------------
             var ctrl = GetOrAdd<BattleController>(FindOrCreate("BattleController"));
             ctrl.archerDef = archer;
             ctrl.horsemanDef = horseman;
-            ctrl.enemyDef = raider;
+            ctrl.grid = grid;
+            ctrl.level = level;
             ctrl.battleAnchor = Anchor;
-            ctrl.laneHalfHeight = LaneHalfHeight;
 
-            // 5. HUD ------------------------------------------------------------------
+            // 6. HUD ------------------------------------------------------------------
             var canvas = EnsureCanvas();
             ctrl.hud = BuildBattleHUD(canvas.transform, ctrl);
             EditorUtility.SetDirty(ctrl);
@@ -98,45 +101,58 @@ namespace Malchin.EditorTools
             return def;
         }
 
-        // ── Battlefield ──────────────────────────────────────────────────────────
+        // ── Battlefield + level ──────────────────────────────────────────────────
 
-        private static void BuildBattlefield()
+        private static BattleGrid BuildBattleGrid()
         {
-            var field = FindOrCreate("BattleField");
-            field.transform.position = Anchor;
-
-            var col = GetOrAdd<BoxCollider2D>(field);
-            col.size = new Vector2(4f, LaneHalfHeight * 2f);
-            col.isTrigger = true;
-            GetOrAdd<BattleFieldInput>(field);
-
-            var square = Square();
-            // Lane background
-            var lane = ChildSprite(field.transform, "LaneBg", square,
-                new Vector3(0f, 0f, 0f), new Vector3(3.4f, LaneHalfHeight * 2f, 1f),
-                new Color(0.16f, 0.20f, 0.12f, 1f), -60);
-            // Base line (bottom) and spawn line (top)
-            ChildSprite(field.transform, "BaseLine", square,
-                new Vector3(0f, -LaneHalfHeight, 0f), new Vector3(4f, 0.5f, 1f),
-                new Color(0.30f, 0.65f, 0.35f, 1f), -50);
-            ChildSprite(field.transform, "SpawnLine", square,
-                new Vector3(0f, LaneHalfHeight, 0f), new Vector3(4f, 0.35f, 1f),
-                new Color(0.75f, 0.25f, 0.25f, 1f), -50);
+            var go = FindOrCreate("BattleField");
+            go.transform.position = Anchor;
+            var grid = GetOrAdd<BattleGrid>(go);   // pulls in BoxCollider2D
+            GetOrAdd<BattleFieldInput>(go);
+            return grid;
         }
 
-        private static GameObject ChildSprite(Transform parent, string name, Sprite sprite,
-            Vector3 localPos, Vector3 localScale, Color color, int order)
+        private static LevelDefinition CreateSampleLevel(CombatUnitDefinition enemy)
         {
-            var existing = parent.Find(name);
-            var go = existing != null ? existing.gameObject : new GameObject(name);
-            if (existing == null) go.transform.SetParent(parent, false);
-            go.transform.localPosition = localPos;
-            go.transform.localScale = localScale;
-            var sr = GetOrAdd<SpriteRenderer>(go);
-            sr.sprite = sprite;
-            sr.color = color;
-            sr.sortingOrder = order;
-            return go;
+            string path = $"{DataFolder}/Level_01.asset";
+            var lvl = AssetDatabase.LoadAssetAtPath<LevelDefinition>(path);
+            if (lvl == null)
+            {
+                lvl = ScriptableObject.CreateInstance<LevelDefinition>();
+                AssetDatabase.CreateAsset(lvl, path);
+            }
+            lvl.levelName = "Level 01";
+            lvl.gridWidth = 6;
+            lvl.gridHeight = 8;
+            lvl.cellSize = 1f;
+            lvl.baseMaxHP = 10f;
+            lvl.rewardSheep = 40;
+            lvl.rewardCattle = 6;
+            lvl.rewardHorse = 1;
+            lvl.spawns = new List<EnemySpawn>
+            {
+                Spawn(enemy, 0.5f, 2), Spawn(enemy, 2f, 4),  Spawn(enemy, 3.5f, 1),
+                Spawn(enemy, 5f, 3),   Spawn(enemy, 6.5f, 0), Spawn(enemy, 7f, 5),
+                Spawn(enemy, 9f, 2),   Spawn(enemy, 10.5f, 4),
+            };
+            EditorUtility.SetDirty(lvl);
+            return lvl;
+        }
+
+        private static EnemySpawn Spawn(CombatUnitDefinition enemy, float time, int column)
+            => new EnemySpawn { enemy = enemy, time = time, column = column };
+
+        [MenuItem("Malchin/Create Battle Level")]
+        public static void CreateBattleLevel()
+        {
+            EnsureFolder();
+            string path = AssetDatabase.GenerateUniqueAssetPath($"{DataFolder}/Level_New.asset");
+            var lvl = ScriptableObject.CreateInstance<LevelDefinition>();
+            AssetDatabase.CreateAsset(lvl, path);
+            AssetDatabase.SaveAssets();
+            Selection.activeObject = lvl;
+            EditorGUIUtility.PingObject(lvl);
+            Debug.Log($"Malchin: created new level at {path}. Edit it in the Inspector, then assign it to BattleController.");
         }
 
         // ── Battle HUD ───────────────────────────────────────────────────────────
@@ -254,9 +270,6 @@ namespace Malchin.EditorTools
         }
 
         // ── Generic helpers ──────────────────────────────────────────────────────
-
-        private static Sprite Square() =>
-            AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Background.psd");
 
         private static GameObject EnsureCanvas()
         {
