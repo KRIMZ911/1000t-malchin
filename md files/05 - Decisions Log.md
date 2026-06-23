@@ -32,5 +32,18 @@ The herd grows on a real-time rate (`baseGrowthPerMinute` per livestock type), c
 ## Base building: fixed 20x20 grid with footprints + free movement (2026-06-24)
 Gers are placed on a fixed 20x20 cell grid (cellSize 0.5 world units, centered on the origin). Each ger has a footprint in cells (Main 4x4, Herding/Ovoo 3x3). The player drags gers freely; they snap to cells and cannot overlap (invalid placement tints red and reverts). Saved as the bottom-left "origin cell" per ger (save v3), not raw world position, so layouts are grid-native and survive cellSize/camera changes. Chosen over free-form placement so the base reads as a deliberate, Clash-of-Clans-style camp and so footprints/space become a design lever later. Camera auto-frames the whole grid (no pan/zoom yet — deferred until the base outgrows one screen).
 
+## Combat: grid battles + data-driven levels + characters-as-gacha (2026-06-24)
+Combat moved from a single lane to a **grid** (deploy units on cells; enemies enter the
+top and march to the base row at the bottom). Levels are **data**: a `LevelDefinition`
+asset holds grid size + a spawn timeline (enemy/time/column) + rewards, authored via a
+custom inspector (and `Malchin > Create Battle Level`). Every unit is an **individual
+gacha character** the player collects from drops/cases; before a battle the player
+**selects a squad** from their owned roster, each character usable **once per battle**.
+Building in three stages: (1) grid combat + level editor with a fixed test squad
+[done, unverified], (2) gacha + owned roster, (3) squad selection. Chosen for an
+Arknights-style grid feel, fast/version-controlled level authoring, and to make the
+gacha collection the spine of combat. The lane version was committed first as a safety
+checkpoint. Full design in `09 - Combat & Gacha Design.md`.
+
 ## Save format: versioned JSON, local-first (2026-06-22)
 Save is a single JSON file in `Application.persistentDataPath` carrying a `version` field and a `lastSavedUnixSeconds` timestamp. The version field exists so saves can be migrated when the schema grows and when we move local → backend (Phase 6). Partially resolves the "save data format and migration strategy" open question.

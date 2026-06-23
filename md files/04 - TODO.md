@@ -29,16 +29,33 @@
 - [x] Building levels + grid positions persist in save (v3)
 - [x] One-click `Malchin > Setup Building Scene` editor tool
 
-## NEXT — Phase 3: Combat slice (minimal Arknights-style)
-- [ ] `UnitDefinition` data: HP, damage, attack rate, hold-vs-advance behavior
-- [ ] One battlefield scene with a simple lane
-- [ ] Deploy 2 unit types: archer (holds position), horseman (advances)
-- [ ] Enemies spawn and move; units fight; win/lose condition
-- [ ] Battle reward grants livestock → loops back to the economy
-- [ ] One-click `Malchin > Setup Combat Scene` editor tool
+## DONE — Phase 3 (checkpoint): lane combat slice
+- [x] `CombatUnitDefinition` data: HP, damage, attack rate, range, hold-vs-advance
+- [x] Deploy 2 unit types: archer (holds position), horseman (advances)
+- [x] Enemies spawn and move; units fight; win/lose condition
+- [x] Battle reward grants livestock → loops back to the economy
+- [x] One-click `Malchin > Setup Combat Scene` editor tool
+- [x] (Committed as a safety checkpoint before the grid refactor)
+
+## NOW — Phase 3 Stage 1: grid combat + level editor  ⏳ NEEDS VERIFYING
+- [x] Refactor battle onto a grid (`BattleGrid`: cell↔world, deploy collider, visual)
+- [x] `LevelDefinition` data: grid size + spawn timeline (enemy/time/column) + rewards
+- [x] `BattleController` loads a level, runs the spawn schedule, deploys onto cells
+- [x] Custom inspector to author levels (`LevelDefinitionEditor`) + `Create Battle Level`
+- [ ] **VERIFY in editor:** run `Malchin > Setup Combat Scene`, play the grid battle,
+      confirm deploy/win/lose + the Level_01 custom inspector work (fix any errors)
+
+## NEXT — Phase 3 Stage 2: gacha + owned roster
+- [ ] `CharacterDefinition` data: identity, rarity, → combat stat block
+- [ ] Player roster of owned characters, persisted in the save
+- [ ] Gacha / open-case action grants a random character by rarity (rates in data)
+- [ ] (Resolve gacha decisions in `06 - Open Questions.md`: currency model, pity)
+
+## THEN — Phase 3 Stage 3: pre-battle squad selection
+- [ ] Squad screen: pick owned characters to bring (limited slots)
+- [ ] Each character deployable once per battle; feeds the grid battle (replaces test squad)
 
 ## LATER — captured so we don't forget
-- [ ] Minimal gacha summon (Phase 4)
 - [ ] Wire the full loop together (Phase 5)
 - [ ] Event banners + foreign fighters (Phase 6)
 - [ ] Backend (PlayFab/Firebase) before any real money (Phase 6)

@@ -1,6 +1,11 @@
 # START HERE — Project Overview
 
-> This vault is the brain of the project. If you are Claude Code: read this file first, then `01 - Game Design.md`, then `02 - Tech Stack.md`, then work from `03 - Roadmap.md` and `04 - TODO.md`.
+> This vault is the brain of the project. The vault lives in the **`md files/`** folder
+> (alongside the Unity project `1000t malchin/`).
+>
+> **Resuming the project?** Read **`08 - Current Status & Handoff.md`** first — it tells
+> you exactly where we are and what the current task is. Then this file, then
+> `01 - Game Design.md` and `02 - Tech Stack.md` for context, and work from `04 - TODO.md`.
 
 ## What this game is (one paragraph)
 A mobile, single-player **gacha strategy game** set on the **Mongolian steppe**. The player is a clan leader who builds a camp of traditional **gers** (yurts), raises **livestock as the resource economy** (sheep, cattle, special horses), collects **fighters via a gacha system**, and fights **Arknights-style lane battles** where some units hold position and some advance. The hook is a fresh cultural setting + the cozy herding economy fused with collection-gacha combat.
@@ -25,3 +30,5 @@ A mobile, single-player **gacha strategy game** set on the **Mongolian steppe**.
 - `05 - Decisions Log.md` — why we chose what we chose
 - `06 - Open Questions.md` — things still undecided
 - `07 - Build Plan & Placeholder Assets.md` — step-by-step from empty project + when to add which placeholder art
+- `08 - Current Status & Handoff.md` — **where we are now + the current task (read first when resuming)**
+- `09 - Combat & Gacha Design.md` — the expanded grid-combat + gacha/collection design
