@@ -13,17 +13,31 @@
 - [x] Point Claude Code at the `claude game` root and confirm it can read this vault
 - [x] Do a throwaway Android build to confirm the build pipeline works on a device/emulator
 
-## NEXT — Phase 1: Economy skeleton
+## DONE — Phase 1: Economy skeleton
 - [x] Create `Scripts/Economy/` folder
 - [x] Define `LivestockType` (sheep, cattle, special horses) data
 - [x] Create a herd manager that stores current counts
-- [x] Implement passive growth over time (a tick system)
-- [x] Implement local save/load (e.g. JSON to disk)
+- [x] Implement passive growth over time (timestamp-based, incl. offline growth)
+- [x] Implement local save/load (versioned JSON to disk)
 - [x] Build a simple on-screen UI showing live counts
 
+## DONE — Phase 2: Base building (gers)
+- [x] `GerDefinition` data model: footprint, economy effect, multi-level upgrade path
+- [x] 3 gers placed: Main Ger (4x4), Herding Ger (3x3), Ovoo/Shrine (3x3)
+- [x] Upgrade a ger by spending livestock; effect changes (Herding=growth, Main=cap)
+- [x] 20x20 build grid: snap-to-grid drag, footprints, overlap prevention, grid visual
+- [x] Building levels + grid positions persist in save (v3)
+- [x] One-click `Malchin > Setup Building Scene` editor tool
+
+## NEXT — Phase 3: Combat slice (minimal Arknights-style)
+- [ ] `UnitDefinition` data: HP, damage, attack rate, hold-vs-advance behavior
+- [ ] One battlefield scene with a simple lane
+- [ ] Deploy 2 unit types: archer (holds position), horseman (advances)
+- [ ] Enemies spawn and move; units fight; win/lose condition
+- [ ] Battle reward grants livestock → loops back to the economy
+- [ ] One-click `Malchin > Setup Combat Scene` editor tool
+
 ## LATER — captured so we don't forget
-- [ ] Ger data model + upgrade system (Phase 2)
-- [ ] Minimal lane combat (Phase 3)
 - [ ] Minimal gacha summon (Phase 4)
 - [ ] Wire the full loop together (Phase 5)
 - [ ] Event banners + foreign fighters (Phase 6)

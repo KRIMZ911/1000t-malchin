@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using Malchin.Building;
 
 namespace Malchin.Economy
 {
@@ -13,7 +14,9 @@ namespace Malchin.Economy
     public static class SaveSystem
     {
         // Bump this whenever the SaveData shape changes; handle old values in Migrate().
-        public const int SaveVersion = 1;
+        // v2: added buildings (ger levels + positions).
+        // v3: buildings store grid cells (gridX/gridY) instead of world x/y.
+        public const int SaveVersion = 3;
 
         private static readonly string SavePath =
             Path.Combine(Application.persistentDataPath, "save.json");
@@ -24,6 +27,7 @@ namespace Malchin.Economy
             public int version;
             public long lastSavedUnixSeconds;
             public List<LivestockEntry> livestock = new List<LivestockEntry>();
+            public List<BuildingSaveEntry> buildings = new List<BuildingSaveEntry>();
         }
 
         [Serializable]
@@ -45,6 +49,9 @@ namespace Malchin.Economy
             };
             foreach (var kv in herd.GetRawCounts())
                 data.livestock.Add(new LivestockEntry { id = kv.Key, count = kv.Value });
+
+            if (BuildingManager.Instance != null)
+                data.buildings = BuildingManager.Instance.CaptureState();
 
             File.WriteAllText(SavePath, JsonUtility.ToJson(data, prettyPrint: true));
             Debug.Log($"Game saved to {SavePath}");
@@ -70,6 +77,12 @@ namespace Malchin.Economy
             var dict = new Dictionary<string, float>();
             foreach (var entry in data.livestock) dict[entry.id] = entry.count;
             herd.LoadCounts(dict);
+
+            // Restore buildings (levels + positions) BEFORE offline growth, so the
+            // herd grows offline at the upgraded rate the player left it at.
+            // Grid cells only exist from v3 on; older saves keep default placement.
+            if (BuildingManager.Instance != null)
+                BuildingManager.Instance.RestoreState(data.buildings, data.version >= 3);
 
             // ...then apply growth for the time the app was closed.
             if (data.lastSavedUnixSeconds > 0)
