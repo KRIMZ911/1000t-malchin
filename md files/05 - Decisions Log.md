@@ -45,5 +45,21 @@ Arknights-style grid feel, fast/version-controlled level authoring, and to make 
 gacha collection the spine of combat. The lane version was committed first as a safety
 checkpoint. Full design in `09 - Combat & Gacha Design.md`.
 
+## Gacha: Arknights-style, 6 tiers + potential + soft/hard pity (2026-06-24)
+The Stage 2 gacha ruleset, decided with the user. **Two-tier currency:** *Special Horses*
+are the earned premium (battles/idle); a separate **paid** currency (*Sky-Blue Khadag*,
+name cosmetic) sits on top — split so F2P and payer economies tune independently, chosen
+over a single shared currency for that flexibility. **6 rarity tiers (1★–6★), all in the
+pull pool** (player wanted full RNG over an Arknights-style top-tiers-only pool), rates
+6★ 2% / 5★ 8% / 4★ 30% / 3★ 30% / 2★ 20% / 1★ 10%. **Soft + hard pity** (6★ +2%/pull
+after pull 50, hard cap ~99, resets on 6★; every 10-pull guarantees a 5★+) — chosen over
+no-pity/hard-only because modern players expect it and it aids retention/fairness.
+**Duplicates raise a character's Potential 1→6** (stat boosts + deploy-cost reductions;
+overflow past max → upgrade token) — chosen over shards/refund to make collection a
+power-chase that feeds the existing Hero Upgrade Ger. Single + 10-pull, one standard pool
+for Stage 2 (event banners deferred to Phase 6). **Real drop rates shown on the summon
+screen** (legal requirement in several markets). All values live in ScriptableObjects so
+they stay tunable. Full spec in `09 - Combat & Gacha Design.md`.
+
 ## Save format: versioned JSON, local-first (2026-06-22)
 Save is a single JSON file in `Application.persistentDataPath` carrying a `version` field and a `lastSavedUnixSeconds` timestamp. The version field exists so saves can be migrated when the schema grows and when we move local → backend (Phase 6). Partially resolves the "save data format and migration strategy" open question.

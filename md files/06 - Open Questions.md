@@ -10,10 +10,10 @@
 - [ ] What's the signature hero/unit that represents the game in marketing (horse archer?)?
 
 ## Economy / monetization
-- [ ] Exact premium currency design — are "special horses" the paid currency, or a layer above them?
-- [ ] Free-to-play generosity: how many free summons early to hook players?
-- [ ] Pity system? (guaranteed rare after N pulls — standard in modern gacha, helps retention & fairness)
-- [ ] Drop-rate disclosure approach per region (legally required in several markets).
+- [x] Exact premium currency design — **two-tier**: Special Horses (earned) + Sky-Blue Khadag (paid) on top. (Decisions Log 2026-06-24)
+- [~] Free-to-play generosity — direction set (first-launch guaranteed 10-pull + idle/battle drip ≈ one 10-pull every few days); exact numbers tune once economy values are live. (`09`)
+- [x] Pity system? — **yes, soft + hard** (6★ +2%/pull after 50, hard ~99, resets on 6★; 10-pull guarantees 5★+). (Decisions Log 2026-06-24)
+- [x] Drop-rate disclosure — **show real per-tier % on the summon screen**, built in from day one. (Decisions Log 2026-06-24)
 
 ## Tech
 - [ ] Which backend exactly (PlayFab vs Firebase) — decide before Phase 6.

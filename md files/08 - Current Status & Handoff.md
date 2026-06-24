@@ -12,6 +12,8 @@
 - **Immediate next task:** the user runs `Malchin > Setup Combat Scene` in Unity,
   plays the grid battle, and confirms it works (or pastes Console errors to fix).
   Then we move to **Stage 2 (gacha + roster)**.
+- **Stage 2 gacha ruleset is now fully DECIDED (2026-06-24)** — currency, rarity tiers,
+  rates, pity, dupes/Potential all locked. See the spec in `09` before writing code.
 
 ## The goal (one paragraph)
 A mobile, single-player **gacha strategy game** on the **Mongolian steppe**: build a

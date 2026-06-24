@@ -46,10 +46,15 @@
       confirm deploy/win/lose + the Level_01 custom inspector work (fix any errors)
 
 ## NEXT — Phase 3 Stage 2: gacha + owned roster
-- [ ] `CharacterDefinition` data: identity, rarity, → combat stat block
-- [ ] Player roster of owned characters, persisted in the save
-- [ ] Gacha / open-case action grants a random character by rarity (rates in data)
-- [ ] (Resolve gacha decisions in `06 - Open Questions.md`: currency model, pity)
+> Ruleset locked — see "Gacha system spec — DECIDED 2026-06-24" in `09`.
+- [x] Resolve gacha decisions (currency model, rarity tiers, pity, dupes, rates) — done 2026-06-24
+- [ ] `CharacterDefinition` data: id, displayName, rarity (1–6), `CombatUnitDefinition` ref, base deploy cost, Potential boost table
+- [ ] `GachaPool` data: characters per tier + rate table (6★2/5★8/4★30/3★30/2★20/1★10) + pity config
+- [ ] Two-tier currency: Special Horses (earned) + Sky-Blue Khadag (paid); balances in save
+- [ ] Player roster persisted in save: `characterId → { count, potential }` + `pityCounter` (bump save version + migrate)
+- [ ] `GachaService`: roll tier w/ soft+hard pity (reset on 6★, 10-pull guarantees 5★+); add to roster OR raise Potential; overflow → upgrade token
+- [ ] Single + 10-pull actions; summon UI shows real drop rates (disclosure)
+- [ ] First-launch guaranteed 10-pull hook
 
 ## THEN — Phase 3 Stage 3: pre-battle squad selection
 - [ ] Squad screen: pick owned characters to bring (limited slots)

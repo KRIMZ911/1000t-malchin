@@ -69,8 +69,70 @@
 All are placeholder colored circles with health bars — **no real art yet** (per the
 placeholder philosophy in `07 - Build Plan & Placeholder Assets.md`).
 
-## Decisions still owed (before Stage 2 ships) — see `06 - Open Questions.md`
-- Are **special horses** the paid currency, or a layer above them?
-- **Pity system?** (guaranteed rare after N pulls — standard in modern gacha.)
-- Free-to-play generosity (how many free early summons), and per-region drop-rate
-  disclosure (legally required in several markets).
+## Gacha system spec — DECIDED 2026-06-24
+
+The full ruleset for Stage 2. Modeled on Arknights (closest shipped reference).
+All numbers live in **data** (ScriptableObjects), so they are tunable later — these
+are the launch defaults, not hard-coded constants.
+
+### Currency model — two-tier
+- **Special Horses** — the *earned* premium currency. Comes from battle rewards and
+  idle/offline generation (per the economy pillar). This is what most players spend.
+- **Sky-Blue Khadag** — the *paid* currency on top (name is cosmetic, tweakable). Bought
+  with real money (Phase 6); converts into summon currency. Kept separate from Special
+  Horses so the F2P economy and the payer economy can be tuned independently.
+- Both ultimately resolve to a **summon** action; the split only governs the source.
+
+### Rarity tiers — 6 tiers (1★–6★), all pullable
+| Tier | Name | Base pull rate |
+|---|---|---|
+| 6★ | Legendary | 2% |
+| 5★ | Epic | 8% |
+| 4★ | Rare | 30% |
+| 3★ | Common | 30% |
+| 2★ | — | 20% |
+| 1★ | — | 10% |
+Rates sum to 100%. 1★/2★ are intentionally in the pool (player chose full 6-tier RNG).
+
+### Pity — soft + hard
+- **Soft pity:** 6★ rate holds at 2% through pull 50, then **+2% per pull** until a 6★
+  is obtained. Average 6★ lands ~pull 35 effective.
+- **Hard pity:** 6★ guaranteed by ~pull 99.
+- **Reset:** the pity counter resets to 0 on any 6★.
+- **10-pull guarantee:** every 10-pull yields **at least one 5★ or higher**.
+- Pity counter is **persisted in the save** (survives app close).
+
+### Duplicates — Potential system (copies = power)
+- Each character has a **Potential** level **1→6** (i.e. up to **5 duplicates** absorbed).
+- Milestones alternate between **stat boosts** (HP / ATK) and **deploy-cost reduction**:
+  - Pot 2: +HP   · Pot 3: −1 deploy cost   · Pot 4: +ATK
+  - Pot 5: −1 deploy cost   · Pot 6: +HP & +ATK
+  (exact values tuned in data per rarity)
+- **Overflow:** a duplicate of an already-maxed (Pot 6) character converts to a
+  **generic upgrade token** (feeds the Hero Upgrade Ger).
+
+### Pull format
+- **Single pull** and **10-pull** (10-pull carries the 5★+ guarantee).
+- **Stage 2:** one **standard pool** containing the launch roster.
+- **Phase 6:** rate-up / limited **event banners** + foreign fighters (see `01`).
+
+### Free-to-play generosity (recommended, tweakable)
+- **First-launch guaranteed 10-pull** as the hook (uses the 5★+ guarantee).
+- Steady **idle + battle drip** of Special Horses so an early player can afford roughly
+  one 10-pull every few days. Tune once the economy numbers are live.
+
+### Drop-rate disclosure
+- Show the **real per-tier %** on the banner/summon screen. Legally required in several
+  markets (CN/KR/JP) and good-faith everywhere. Build it into the summon UI from day one.
+
+### Data-model implications for Stage 2 (guides the code)
+- **`CharacterDefinition`** (ScriptableObject): id, displayName, rarity (1–6),
+  reference to a `CombatUnitDefinition` (its combat stat block), base deploy cost,
+  and a **Potential boost table** (per-milestone HP/ATK/cost deltas).
+- **`GachaPool` / banner** (ScriptableObject): list of characters per tier + the rate
+  table + pity config (soft start, step, hard cap, 10-pull guarantee tier).
+- **Save data:** owned roster = map of `characterId → { count, potential }`; current
+  `pityCounter`; the two currency balances. Bump the save version + migrate.
+- **`GachaService`:** rolls a tier (rate table + current pity), picks a character in
+  that tier, applies pity reset / 10-pull guarantee, then either adds the character to
+  the roster or raises its Potential (or grants a token on overflow).
