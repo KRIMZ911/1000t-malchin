@@ -32,3 +32,4 @@ A mobile, single-player **gacha strategy game** set on the **Mongolian steppe**.
 - `07 - Build Plan & Placeholder Assets.md` — step-by-step from empty project + when to add which placeholder art
 - `08 - Current Status & Handoff.md` — **where we are now + the current task (read first when resuming)**
 - `09 - Combat & Gacha Design.md` — the expanded grid-combat + gacha/collection design
+- `10 - Characters & Abilities.md` — the starter roster + the ability/effect system

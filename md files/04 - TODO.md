@@ -48,7 +48,10 @@
 ## NEXT — Phase 3 Stage 2: gacha + owned roster
 > Ruleset locked — see "Gacha system spec — DECIDED 2026-06-24" in `09`.
 - [x] Resolve gacha decisions (currency model, rarity tiers, pity, dupes, rates) — done 2026-06-24
-- [ ] `CharacterDefinition` data: id, displayName, rarity (1–6), `CombatUnitDefinition` ref, base deploy cost, Potential boost table
+- [x] Ability/effect data model (`Ability.cs`: Talent/Skill, 12 effect types, targets) — 2026-06-24
+- [x] `CharacterDefinition` data: id, displayName, rarity (1–6), `CombatUnitDefinition` ref, base deploy cost, abilities, Potential boost table — 2026-06-24
+- [x] Starter roster of 12 characters + abilities, one-click `Malchin > Create Starter Roster` (`RosterBuilder.cs`) — 2026-06-24 (see `10`)
+- [ ] **Runtime: make abilities fire in battle** — ability-runner on `CombatUnit` (charge skills, apply effects) + status-effect system (buff/shield/stun/slow). Needs verified Stage 1 combat + PC
 - [ ] `GachaPool` data: characters per tier + rate table (6★2/5★8/4★30/3★30/2★20/1★10) + pity config
 - [ ] Two-tier currency: Special Horses (earned) + Sky-Blue Khadag (paid); balances in save
 - [ ] Player roster persisted in save: `characterId → { count, potential }` + `pityCounter` (bump save version + migrate)
