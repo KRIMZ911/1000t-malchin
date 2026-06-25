@@ -55,6 +55,10 @@ namespace Malchin.EditorTools
             var ctrl = GetOrAdd<BattleController>(FindOrCreate("BattleController"));
             ctrl.archerDef = archer;
             ctrl.horsemanDef = horseman;
+            // If the starter roster exists, deploy collectible characters (with abilities)
+            // as the test squad so skills/talents are visible. Run "Create Starter Roster" first.
+            ctrl.archerCharacter   = AssetDatabase.LoadAssetAtPath<CharacterDefinition>($"{DataFolder}/Characters/Khulan.asset");
+            ctrl.horsemanCharacter = AssetDatabase.LoadAssetAtPath<CharacterDefinition>($"{DataFolder}/Characters/Sukhbaatar.asset");
             ctrl.grid = grid;
             ctrl.level = level;
             ctrl.battleAnchor = Anchor;
@@ -190,6 +194,12 @@ namespace Malchin.EditorTools
                 AnchorBottom, new Vector2(220f, 150f), new Vector2(360f, 150f),
                 new Color(0.20f, 0.65f, 0.70f), out var horseLabel);
 
+            // Manual-skill button: appears above the deploy row when a unit is tapped.
+            var skillBtn = CreateButton("SkillButton", battlePanel.transform, "Use Skill",
+                AnchorBottom, new Vector2(0f, 320f), new Vector2(560f, 120f),
+                new Color(0.78f, 0.55f, 0.18f), out var skillLabel);
+            skillBtn.gameObject.SetActive(false);
+
             // Result panel (centered box)
             var resultPanel = new GameObject("ResultPanel", typeof(RectTransform), typeof(Image));
             resultPanel.transform.SetParent(host.transform, false);
@@ -214,6 +224,8 @@ namespace Malchin.EditorTools
             hud.archerLabel = archerLabel;
             hud.horsemanButton = horseBtn;
             hud.horsemanLabel = horseLabel;
+            hud.skillButton = skillBtn;
+            hud.skillLabel = skillLabel;
             hud.resultPanel = resultPanel;
             hud.resultText = resultText;
             hud.returnButton = returnBtn;

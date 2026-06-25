@@ -26,6 +26,9 @@ namespace Malchin.Combat
         [Header("Player test squad (Stage 1)")]
         public CombatUnitDefinition archerDef;
         public CombatUnitDefinition horsemanDef;
+        [Tooltip("Optional: deploy these collectible characters (with abilities) instead of the bare defs.")]
+        public CharacterDefinition archerCharacter;
+        public CharacterDefinition horsemanCharacter;
         public int archerCount = 4;
         public int horsemanCount = 4;
 
@@ -40,7 +43,9 @@ namespace Malchin.Combat
         private int _enemiesAlive;
         private List<EnemySpawn> _schedule;
         private int _archersLeft, _horsemenLeft;
-        private CombatUnitDefinition _selected;
+        private enum DeploySlot { Archer, Horseman }
+        private DeploySlot _selectedSlot = DeploySlot.Archer;
+        private CombatUnit _selectedUnit;   // a deployed unit tapped for manual-skill use
         private readonly Dictionary<Vector2Int, CombatUnit> _playerCells = new Dictionary<Vector2Int, CombatUnit>();
 
         private Camera _cam;
@@ -67,6 +72,7 @@ namespace Malchin.Combat
         void OnUnitRemoved(CombatUnit u)
         {
             if (u.occupiesCell) _playerCells.Remove(u.cell);
+            if (_selectedUnit == u) { _selectedUnit = null; if (hud != null) hud.HideSkillButton(); }
             if (State == BattleState.Fighting && u.IsEnemy)
             {
                 _enemiesAlive = Mathf.Max(0, _enemiesAlive - 1);
@@ -95,7 +101,8 @@ namespace Malchin.Combat
             _schedule = level.SortedSpawns();
             _archersLeft = archerCount;
             _horsemenLeft = horsemanCount;
-            _selected = archerDef;
+            _selectedSlot = DeploySlot.Archer;
+            _selectedUnit = null;
             _playerCells.Clear();
 
             FrameCamera();
@@ -113,6 +120,10 @@ namespace Malchin.Combat
                 SpawnFromEntry(_schedule[_spawnIndex]);
                 _spawnIndex++;
             }
+
+            // Keep the manual-skill button's enabled state in sync with the unit's charge.
+            if (_selectedUnit != null && hud != null)
+                hud.SetSkillButtonReady(_selectedUnit.SkillReady);
         }
 
         void SpawnFromEntry(EnemySpawn entry)
@@ -134,31 +145,94 @@ namespace Malchin.Combat
             return u;
         }
 
+        CombatUnit SpawnCharacter(CharacterDefinition ch, CombatTeam team, Vector3 pos)
+        {
+            var go = new GameObject($"{team}_{ch.id}");
+            go.transform.position = pos;
+            var u = go.AddComponent<CombatUnit>();
+            u.InitCharacter(ch, team, grid.BaseY);
+            return u;
+        }
+
         // ── Deploy ────────────────────────────────────────────────────────────
 
-        public void SelectArcher() { _selected = archerDef; }
-        public void SelectHorseman() { _selected = horsemanDef; }
+        public void SelectArcher()   { _selectedSlot = DeploySlot.Archer; ClearUnitSelection(); }
+        public void SelectHorseman() { _selectedSlot = DeploySlot.Horseman; ClearUnitSelection(); }
 
         public void OnFieldTapped(Vector3 worldPos)
         {
-            if (State != BattleState.Fighting || _selected == null || grid == null) return;
+            if (State != BattleState.Fighting || grid == null) return;
 
             int col = grid.WorldToColumn(worldPos);
             int row = grid.WorldToRow(worldPos);
             var cell = new Vector2Int(col, row);
-            if (_playerCells.ContainsKey(cell)) return;            // one unit per cell
 
-            bool isArcher = _selected == archerDef;
+            // Tapping on/near a deployed unit selects it (to use its manual skill) instead of
+            // deploying. Uses actual position so advancing units stay tappable after they move.
+            var existing = NearestPlayerUnitNear(worldPos, grid.cellSize * 0.6f);
+            if (existing != null)
+            {
+                SelectUnit(existing);
+                return;
+            }
+            if (_playerCells.ContainsKey(cell)) return;   // cell already holds a unit
+
+            bool isArcher = _selectedSlot == DeploySlot.Archer;
             if (isArcher && _archersLeft <= 0) return;
             if (!isArcher && _horsemenLeft <= 0) return;
 
-            var u = SpawnUnit(_selected, CombatTeam.Player, grid.CellCenter(col, row));
+            var ch = isArcher ? archerCharacter : horsemanCharacter;
+            var def = isArcher ? archerDef : horsemanDef;
+            Vector3 at = grid.CellCenter(col, row);
+            CombatUnit u = ch != null ? SpawnCharacter(ch, CombatTeam.Player, at)
+                                      : (def != null ? SpawnUnit(def, CombatTeam.Player, at) : null);
+            if (u == null) return;
+
             u.cell = cell;
             u.occupiesCell = true;
             _playerCells[cell] = u;
+            ClearUnitSelection();
 
             if (isArcher) _archersLeft--; else _horsemenLeft--;
             UpdateHud();
+        }
+
+        // ── Manual skill selection ──────────────────────────────────────────────
+
+        CombatUnit NearestPlayerUnitNear(Vector3 worldPos, float maxDist)
+        {
+            CombatUnit best = null;
+            float bestSq = maxDist * maxDist;
+            for (int i = 0; i < _units.Count; i++)
+            {
+                var u = _units[i];
+                if (u == null || u.team != CombatTeam.Player) continue;
+                float dSq = ((Vector2)(u.transform.position - worldPos)).sqrMagnitude;
+                if (dSq <= bestSq) { bestSq = dSq; best = u; }
+            }
+            return best;
+        }
+
+        void SelectUnit(CombatUnit u)
+        {
+            _selectedUnit = u;
+            if (hud == null) return;
+            if (u.HasManualSkill) hud.ShowSkillButton(u.SkillName, u.SkillReady);
+            else hud.HideSkillButton();
+        }
+
+        void ClearUnitSelection()
+        {
+            _selectedUnit = null;
+            if (hud != null) hud.HideSkillButton();
+        }
+
+        /// <summary>Wired to the HUD skill button: fire the selected unit's manual skill.</summary>
+        public void UseSelectedUnitSkill()
+        {
+            if (_selectedUnit == null) return;
+            if (_selectedUnit.TryActivateManualSkill() && hud != null)
+                hud.SetSkillButtonReady(false);
         }
 
         public void DamageBase(float dmg)
@@ -231,16 +305,151 @@ namespace Malchin.Combat
 
         public CombatUnit NearestOpponentWithin(CombatUnit asker, float range)
         {
-            CombatUnit best = null;
-            float bestSq = range * range;
+            CombatUnit best = null, bestTaunt = null;
+            float bestSq = range * range, bestTauntSq = range * range;
             for (int i = 0; i < _units.Count; i++)
             {
                 var u = _units[i];
                 if (u == null || u == asker || u.team == asker.team) continue;
                 float dSq = ((Vector2)(u.transform.position - asker.transform.position)).sqrMagnitude;
                 if (dSq <= bestSq) { bestSq = dSq; best = u; }
+                if (u.IsTaunting() && dSq <= bestTauntSq) { bestTauntSq = dSq; bestTaunt = u; }
+            }
+            return bestTaunt != null ? bestTaunt : best;   // taunters pull aggro
+        }
+
+        /// <summary>All opponents of <paramref name="asker"/> within range, nearest first (fills the supplied list).</summary>
+        public void OpponentsWithin(CombatUnit asker, float range, List<CombatUnit> results)
+        {
+            results.Clear();
+            float rSq = range * range;
+            for (int i = 0; i < _units.Count; i++)
+            {
+                var u = _units[i];
+                if (u == null || u == asker || u.team == asker.team) continue;
+                if (((Vector2)(u.transform.position - asker.transform.position)).sqrMagnitude <= rSq)
+                    results.Add(u);
+            }
+            SortByDistance(results, asker.transform.position);
+        }
+
+        public void AlliesWithin(CombatUnit asker, float radius, bool includeSelf, List<CombatUnit> results)
+        {
+            results.Clear();
+            float rSq = radius * radius;
+            for (int i = 0; i < _units.Count; i++)
+            {
+                var u = _units[i];
+                if (u == null || u.team != asker.team) continue;
+                if (u == asker) { if (includeSelf) results.Add(u); continue; }
+                if (((Vector2)(u.transform.position - asker.transform.position)).sqrMagnitude <= rSq)
+                    results.Add(u);
+            }
+        }
+
+        public bool AnyAllyWounded(CombatUnit asker, float radius, float fractionThreshold)
+        {
+            var u = MostWoundedAlly(asker, radius, true);
+            return u != null && u.HealthFraction < fractionThreshold;
+        }
+
+        public CombatUnit MostWoundedAlly(CombatUnit asker, float radius, bool includeSelf)
+        {
+            CombatUnit best = null;
+            float worst = 1f;
+            _woundedScratch.Clear();
+            AlliesWithin(asker, radius, includeSelf, _woundedScratch);
+            for (int i = 0; i < _woundedScratch.Count; i++)
+            {
+                float f = _woundedScratch[i].HealthFraction;
+                if (f < worst) { worst = f; best = _woundedScratch[i]; }
             }
             return best;
+        }
+
+        static void SortByDistance(List<CombatUnit> list, Vector3 from)
+        {
+            list.Sort((a, b) =>
+                ((Vector2)(a.transform.position - from)).sqrMagnitude
+                .CompareTo(((Vector2)(b.transform.position - from)).sqrMagnitude));
+        }
+
+        private readonly List<CombatUnit> _query = new List<CombatUnit>();
+        private readonly List<CombatUnit> _woundedScratch = new List<CombatUnit>();
+
+        // ── Ability resolution ──────────────────────────────────────────────────
+
+        /// <summary>Gather the ability's targets and apply its primary (and optional secondary) effect.</summary>
+        public void ResolveAbility(CombatUnit caster, Ability ab)
+        {
+            if (caster == null || ab == null || !ab.HasEffect) return;
+
+            _query.Clear();
+            GatherTargets(caster, ab, _query);
+            for (int i = 0; i < _query.Count; i++)
+                ApplyEffect(caster, _query[i], ab.effect, ab.magnitude, ab.duration);
+
+            if (ab.HasSecondary)
+                for (int i = 0; i < _query.Count; i++)
+                    ApplyEffect(caster, _query[i], ab.secondaryEffect, ab.secondaryMagnitude, ab.secondaryDuration);
+        }
+
+        void GatherTargets(CombatUnit caster, Ability ab, List<CombatUnit> results)
+        {
+            float radius = ab.radius > 0f ? ab.radius : 9999f;
+            switch (ab.target)
+            {
+                case EffectTarget.SelfOnly:
+                    results.Add(caster);
+                    break;
+                case EffectTarget.AllAllies:
+                case EffectTarget.AlliesInRadius:
+                    AlliesWithin(caster, radius, true, results);
+                    break;
+                case EffectTarget.MostWoundedAlly:
+                    var w = MostWoundedAlly(caster, radius, true);
+                    if (w != null) results.Add(w);
+                    break;
+                case EffectTarget.SingleEnemy:
+                    var e = NearestOpponentWithin(caster, radius);
+                    if (e != null) results.Add(e);
+                    break;
+                case EffectTarget.EnemiesInRadius:
+                    var focus = NearestOpponentWithin(caster, 9999f);
+                    if (focus != null) EnemiesAroundPoint(caster, focus.transform.position, radius, results);
+                    break;
+            }
+        }
+
+        void EnemiesAroundPoint(CombatUnit caster, Vector3 point, float radius, List<CombatUnit> results)
+        {
+            float rSq = radius * radius;
+            for (int i = 0; i < _units.Count; i++)
+            {
+                var u = _units[i];
+                if (u == null || u.team == caster.team) continue;
+                if (((Vector2)(u.transform.position - point)).sqrMagnitude <= rSq) results.Add(u);
+            }
+        }
+
+        void ApplyEffect(CombatUnit caster, CombatUnit target, EffectType effect, float magnitude, float duration)
+        {
+            if (target == null) return;
+            switch (effect)
+            {
+                case EffectType.AoeDamage:        target.TakeDamage(magnitude); break;
+                case EffectType.ArmorPierce:      target.TakePureDamage(magnitude); break;
+                case EffectType.Heal:             target.Heal(magnitude); break;
+                case EffectType.Shield:           target.AddShield(magnitude, duration); break;
+                case EffectType.HealOverTime:     target.AddEffect(EffectType.HealOverTime, magnitude, duration <= 0f ? 3f : duration); break;
+                case EffectType.Stun:             target.AddEffect(EffectType.Stun, 0f, duration); break;
+                case EffectType.Slow:             target.AddEffect(EffectType.Slow, magnitude, duration); break;
+                case EffectType.DamageBoost:
+                case EffectType.AttackSpeedBoost:
+                case EffectType.DamageReduction:  target.AddEffect(effect, magnitude, duration <= 0f ? 5f : duration); break;
+                case EffectType.Taunt:            caster.AddEffect(EffectType.Taunt, 0f, duration); break; // the caster taunts
+                default: break; // MultiShot is a passive talent, not an applied effect
+            }
         }
 
         void UpdateHud()

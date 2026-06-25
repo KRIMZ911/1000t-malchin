@@ -91,12 +91,34 @@ Generated standard table (scaled from each character's base stats):
 Pot 2 **+HP** · Pot 3 **−1 deploy cost** · Pot 4 **+ATK** · Pot 5 **−1 deploy cost** ·
 Pot 6 **+HP & +ATK**. Tune per character later.
 
+## Activation: manual vs. auto (decided 2026-06-24)
+Skills carry an **ActivationMode**:
+- **Manual** — the player **taps the unit**, and a **"Use: {skill}" button** appears in the
+  HUD (enabled only when the charge bar is full). For the big/ultimate skills.
+  *Manual in the roster:* Naranbaatar (Sunlit Charge), Sarangerel (Tengri's Blessing),
+  Ganbaatar (Shieldwall).
+- **Auto** — the unit fires it itself once charged, gated by an **AutoFireCondition**:
+  - `WhenCharged` — fire the instant the bar fills.
+  - `EnemyInRange` — fire when charged **and** a foe is in attack range ("enemy in front").
+    *(Khulan Arrow Storm, Tamir Piercing Shot, Sukhbaatar Cleave.)*
+  - `AllyWounded` — fire when charged **and** an ally/self is hurt. *(Oyun Healing Brew.)*
+
+Every chargeable unit shows a **charge bar** above its HP bar (blue filling → **gold when
+ready**). Talents are passive and always on.
+
 ## Status: what's built vs. what's next
-- ✅ **Data model** — `Ability.cs`, `CharacterDefinition.cs` (compile-clean, pure data).
-- ✅ **Generator** — `RosterBuilder.cs` → `Malchin > Create Starter Roster` creates all 12
-  characters + their stat blocks + abilities + Potential tables as assets.
-- ⏳ **Runtime execution (next, needs PC + the verified Stage 1 combat):** make Talents and
-  Skills actually fire in battle — an ability-runner on `CombatUnit` that charges skills,
-  applies effects, and a small status-effect system (buff/shield/stun/slow timers). Kept
-  out of this step on purpose so the unverified Stage 1 combat isn't destabilized blind.
+- ✅ **Data model** — `Ability.cs` (now incl. ActivationMode + AutoFireCondition + optional
+  secondary effect), `CharacterDefinition.cs`.
+- ✅ **Generator** — `RosterBuilder.cs` → `Malchin > Create Starter Roster`.
+- ✅ **Runtime ability runner + status-effect system** (`CombatUnit.cs`): skills charge
+  over time (charge bar), auto-fire on condition or fire on manual tap; effects resolve via
+  `BattleController.ResolveAbility` (damage/AoE, heal/HoT, shield-absorb, stun, slow,
+  damage-reduction, attack/​damage buffs, taunt aggro, multishot). Units without a
+  CharacterDefinition (enemies, old test squad) are unaffected and behave as before.
+- ✅ **Manual-skill UI** — tap a deployed unit → HUD "Use: {skill}" button (enabled when
+  charged); wired in `BattleHUD.cs` + `CombatSceneSetup.cs`.
+- ✅ **Demo wiring** — `Setup Combat Scene` deploys Khulan (archer) + Sukhbaatar (horseman)
+  as the test squad **if the roster exists**, so abilities are visible immediately.
+- ⏳ **Verify on PC:** run `Create Starter Roster`, then `Setup Combat Scene`, play, and
+  confirm charge bars fill, auto-skills fire, and tapping a manual unit shows the button.
 - ⏳ **Gacha hook-up (Stage 2):** add these to the `GachaPool`; pulling grants/levels them.

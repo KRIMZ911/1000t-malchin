@@ -25,6 +25,10 @@ namespace Malchin.Combat
         public Button horsemanButton;
         public TMP_Text horsemanLabel;
 
+        [Header("Manual skill")]
+        public Button skillButton;            // shown when a unit with a manual skill is tapped
+        public TMP_Text skillLabel;
+
         [Header("Result")]
         public GameObject resultPanel;
         public TMP_Text resultText;
@@ -36,8 +40,29 @@ namespace Malchin.Combat
             if (archerButton != null)   archerButton.onClick.AddListener(() => controller.SelectArcher());
             if (horsemanButton != null) horsemanButton.onClick.AddListener(() => controller.SelectHorseman());
             if (returnButton != null)   returnButton.onClick.AddListener(() => controller.Return());
+            if (skillButton != null)    skillButton.onClick.AddListener(() => controller.UseSelectedUnitSkill());
 
             ShowBaseView();
+        }
+
+        // ── Manual skill button ──────────────────────────────────────────────
+
+        public void ShowSkillButton(string skillName, bool ready)
+        {
+            if (skillButton == null) return;
+            skillButton.gameObject.SetActive(true);
+            if (skillLabel != null) skillLabel.text = string.IsNullOrEmpty(skillName) ? "Use Skill" : $"Use: {skillName}";
+            SetSkillButtonReady(ready);
+        }
+
+        public void SetSkillButtonReady(bool ready)
+        {
+            if (skillButton != null) skillButton.interactable = ready;
+        }
+
+        public void HideSkillButton()
+        {
+            if (skillButton != null) skillButton.gameObject.SetActive(false);
         }
 
         // ── Called by BattleController ────────────────────────────────────────
@@ -47,6 +72,7 @@ namespace Malchin.Combat
             if (battleButton != null) battleButton.gameObject.SetActive(false);
             if (battlePanel != null)  battlePanel.SetActive(true);
             if (resultPanel != null)  resultPanel.SetActive(false);
+            HideSkillButton();
         }
 
         public void Refresh(float baseHp, float baseMax, int enemiesRemaining, int archersLeft, int horsemenLeft)
@@ -79,6 +105,7 @@ namespace Malchin.Combat
             if (battleButton != null) battleButton.gameObject.SetActive(true);
             if (battlePanel != null)  battlePanel.SetActive(false);
             if (resultPanel != null)  resultPanel.SetActive(false);
+            HideSkillButton();
         }
     }
 }

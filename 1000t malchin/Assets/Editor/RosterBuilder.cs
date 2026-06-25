@@ -32,8 +32,10 @@ namespace Malchin.EditorTools
                     "Allies near Naranbaatar deal +15% damage.",
                     EffectType.DamageBoost, EffectTarget.AlliesInRadius, magnitude: 15f, radius: 3f),
                 skill: Skill("Sunlit Charge", 12f,
-                    "Surges forward, smashing nearby enemies for 40 damage and stunning them for 1.5s.",
-                    EffectType.AoeDamage, EffectTarget.EnemiesInRadius, magnitude: 40f, duration: 0f, radius: 1.8f));
+                    "Surges forward, smashing nearby enemies for 40 damage and stunning them for 1.5s. (Tap to use.)",
+                    EffectType.AoeDamage, EffectTarget.EnemiesInRadius, magnitude: 40f, duration: 0f, radius: 1.8f,
+                    activation: ActivationMode.Manual,
+                    secondary: EffectType.Stun, secMag: 0f, secDur: 1.5f));
 
             Make("sarangerel", "Sarangerel", "the Moonlight Shaman", Rarity.Star6, CharacterRole.Shaman,
                 "She reads the Eternal Blue Sky and calls its mercy down onto the wounded.",
@@ -43,8 +45,10 @@ namespace Malchin.EditorTools
                     "Nearby allies recover 2 HP per second.",
                     EffectType.HealOverTime, EffectTarget.AlliesInRadius, magnitude: 2f, radius: 2.5f, duration: 0f),
                 skill: Skill("Tengri's Blessing", 15f,
-                    "Heals all nearby allies for 35 and shields them for 30 over 6s.",
-                    EffectType.Heal, EffectTarget.AllAllies, magnitude: 35f, duration: 0f, radius: 3f));
+                    "Heals all nearby allies for 35 and shields them for 30 over 6s. (Tap to use.)",
+                    EffectType.Heal, EffectTarget.AllAllies, magnitude: 35f, duration: 0f, radius: 3f,
+                    activation: ActivationMode.Manual,
+                    secondary: EffectType.Shield, secMag: 30f, secDur: 6f));
 
             // ── 5★ Epic ─────────────────────────────────────────────────────────
             Make("khulan", "Khulan", "the Wind-Rider", Rarity.Star5, CharacterRole.HorseArcher,
@@ -55,8 +59,9 @@ namespace Malchin.EditorTools
                     "Each shot fires an extra arrow at the same target.",
                     EffectType.MultiShot, EffectTarget.SingleEnemy, magnitude: 1f),
                 skill: Skill("Arrow Storm", 10f,
-                    "Rains arrows on an area, dealing 18 damage to all enemies caught in it.",
-                    EffectType.AoeDamage, EffectTarget.EnemiesInRadius, magnitude: 18f, duration: 0f, radius: 2.5f));
+                    "Rains arrows on an area, dealing 18 damage to all enemies caught in it. (Auto: when a foe is in range.)",
+                    EffectType.AoeDamage, EffectTarget.EnemiesInRadius, magnitude: 18f, duration: 0f, radius: 2.5f,
+                    activation: ActivationMode.Auto, condition: AutoFireCondition.EnemyInRange));
 
             Make("ganbaatar", "Ganbaatar", "Ironwall", Rarity.Star5, CharacterRole.Defender,
                 "An unmovable spearman. Lines break on him like water on stone.",
@@ -66,8 +71,10 @@ namespace Malchin.EditorTools
                     "Takes 25% less damage from all sources.",
                     EffectType.DamageReduction, EffectTarget.SelfOnly, magnitude: 25f),
                 skill: Skill("Shieldwall", 14f,
-                    "Raises a wall: shields nearby allies for 40 over 6s and taunts enemies to strike him.",
-                    EffectType.Shield, EffectTarget.AlliesInRadius, magnitude: 40f, duration: 6f, radius: 2f));
+                    "Raises a wall: shields nearby allies for 40 over 6s and taunts enemies to strike him. (Tap to use.)",
+                    EffectType.Shield, EffectTarget.AlliesInRadius, magnitude: 40f, duration: 6f, radius: 2f,
+                    activation: ActivationMode.Manual,
+                    secondary: EffectType.Taunt, secMag: 0f, secDur: 4f));
 
             // ── 4★ Rare ─────────────────────────────────────────────────────────
             Make("tamir", "Tamir", "Swiftstream", Rarity.Star4, CharacterRole.HorseArcher,
@@ -78,8 +85,9 @@ namespace Malchin.EditorTools
                     "Attacks 15% faster.",
                     EffectType.AttackSpeedBoost, EffectTarget.SelfOnly, magnitude: 15f),
                 skill: Skill("Piercing Shot", 8f,
-                    "A heavy shot dealing 30 bonus damage that ignores armor.",
-                    EffectType.ArmorPierce, EffectTarget.SingleEnemy, magnitude: 30f));
+                    "A heavy shot dealing 30 bonus damage that ignores armor. (Auto: when a foe is in range.)",
+                    EffectType.ArmorPierce, EffectTarget.SingleEnemy, magnitude: 30f,
+                    activation: ActivationMode.Auto, condition: AutoFireCondition.EnemyInRange));
 
             Make("sukhbaatar", "Sukhbaatar", "the Axe", Rarity.Star4, CharacterRole.Horseman,
                 "Swings a broad axe in wide, crushing arcs.",
@@ -89,8 +97,9 @@ namespace Malchin.EditorTools
                     "Deals 10% more damage.",
                     EffectType.DamageBoost, EffectTarget.SelfOnly, magnitude: 10f),
                 skill: Skill("Cleave", 9f,
-                    "A sweeping blow hitting all adjacent enemies for 25 damage.",
-                    EffectType.AoeDamage, EffectTarget.EnemiesInRadius, magnitude: 25f, duration: 0f, radius: 1.5f));
+                    "A sweeping blow hitting all adjacent enemies for 25 damage. (Auto: when a foe is in range.)",
+                    EffectType.AoeDamage, EffectTarget.EnemiesInRadius, magnitude: 25f, duration: 0f, radius: 1.5f,
+                    activation: ActivationMode.Auto, condition: AutoFireCondition.EnemyInRange));
 
             Make("oyun", "Oyun", "the Herbalist", Rarity.Star4, CharacterRole.Support,
                 "Keeps a satchel of steppe remedies for the worst-hurt rider.",
@@ -100,8 +109,9 @@ namespace Malchin.EditorTools
                     "Slowly regenerates 1 HP per second.",
                     EffectType.HealOverTime, EffectTarget.SelfOnly, magnitude: 1f),
                 skill: Skill("Healing Brew", 8f,
-                    "Heals the most-wounded ally for 30.",
-                    EffectType.Heal, EffectTarget.MostWoundedAlly, magnitude: 30f));
+                    "Heals the most-wounded ally for 30. (Auto: when an ally is hurt.)",
+                    EffectType.Heal, EffectTarget.MostWoundedAlly, magnitude: 30f,
+                    activation: ActivationMode.Auto, condition: AutoFireCondition.AllyWounded));
 
             // ── 3★ Common (talent only) ─────────────────────────────────────────
             Make("chuluun", "Chuluun", "Stoneguard", Rarity.Star3, CharacterRole.Defender,
@@ -230,12 +240,17 @@ namespace Malchin.EditorTools
             };
 
         private static Ability Skill(string name, float charge, string desc, EffectType effect,
-            EffectTarget target, float magnitude, float duration = 0f, float radius = 0f)
+            EffectTarget target, float magnitude, float duration = 0f, float radius = 0f,
+            ActivationMode activation = ActivationMode.Auto,
+            AutoFireCondition condition = AutoFireCondition.WhenCharged,
+            EffectType secondary = EffectType.None, float secMag = 0f, float secDur = 0f)
             => new Ability
             {
                 displayName = name, description = desc, kind = AbilityKind.Skill,
                 trigger = SkillTrigger.AutoCooldown, chargeTime = charge,
-                effect = effect, target = target, magnitude = magnitude, duration = duration, radius = radius
+                activation = activation, autoCondition = condition,
+                effect = effect, target = target, magnitude = magnitude, duration = duration, radius = radius,
+                secondaryEffect = secondary, secondaryMagnitude = secMag, secondaryDuration = secDur
             };
 
         private static Ability None() => new Ability { kind = AbilityKind.Skill, effect = EffectType.None };

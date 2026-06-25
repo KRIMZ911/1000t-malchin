@@ -20,6 +20,21 @@ namespace Malchin.Combat
     public enum SkillTrigger { None, AutoCooldown, OnAttack, OnDeploy }
 
     /// <summary>
+    /// How a charged Skill is fired:
+    ///  - Auto: the unit fires it itself when its AutoFireCondition is met.
+    ///  - Manual: the player taps the unit and presses the skill button.
+    /// </summary>
+    public enum ActivationMode { Auto, Manual }
+
+    /// <summary>For Auto skills: what must be true (in addition to being charged) to fire.</summary>
+    public enum AutoFireCondition
+    {
+        WhenCharged,    // fire the instant the bar fills
+        EnemyInRange,   // fire when charged AND a foe is within attack range ("enemy in front")
+        AllyWounded     // fire when charged AND an ally (or self) is hurt
+    }
+
+    /// <summary>
     /// The vocabulary of effects a character can apply. Each Ability picks one.
     /// magnitude/duration/radius on the Ability give it meaning (see tooltips there).
     /// </summary>
@@ -63,10 +78,13 @@ namespace Malchin.Combat
 
         public AbilityKind kind = AbilityKind.Skill;
 
-        [Header("Skill timing (ignored for Talents)")]
+        [Header("Skill timing + activation (ignored for Talents)")]
         public SkillTrigger trigger = SkillTrigger.AutoCooldown;
-        [Tooltip("Seconds to charge before an AutoCooldown skill fires (and between casts).")]
+        [Tooltip("Seconds to charge before the skill can fire (and between casts).")]
         [Min(0f)] public float chargeTime = 10f;
+        public ActivationMode activation = ActivationMode.Auto;
+        [Tooltip("For Auto skills only: the extra condition to fire once charged.")]
+        public AutoFireCondition autoCondition = AutoFireCondition.WhenCharged;
 
         [Header("Effect")]
         public EffectType effect = EffectType.None;
@@ -78,6 +96,14 @@ namespace Malchin.Combat
         [Tooltip("World-unit radius for aura / AoE effects. 0 = single target / self.")]
         [Min(0f)] public float radius;
 
+        [Header("Secondary effect (optional, same targets)")]
+        [Tooltip("A second effect applied alongside the primary, e.g. AoE damage + Stun.")]
+        public EffectType secondaryEffect = EffectType.None;
+        public float secondaryMagnitude;
+        [Min(0f)] public float secondaryDuration;
+
         public bool HasEffect => effect != EffectType.None;
+        public bool HasSecondary => secondaryEffect != EffectType.None;
+        public bool IsManual => kind == AbilityKind.Skill && activation == ActivationMode.Manual;
     }
 }

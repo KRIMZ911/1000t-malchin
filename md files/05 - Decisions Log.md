@@ -74,5 +74,21 @@ into the live combat** (`CombatUnit`/`BattleController`) this pass — Stage 1 c
 still unverified, so running effects blind risks destabilizing it; runtime is the next,
 PC-testable step. Full roster + effect table in `10 - Characters & Abilities.md`.
 
+## Combat: runtime ability runner + status-effect system, manual & auto skills (2026-06-24)
+Built the runtime that makes character abilities actually fire in battle. Each unit has a
+passive **Talent** and a charging **Skill** (visible charge bar). **Activation is mixed,
+per the user:** some skills are **Manual** (player taps the unit → a HUD "Use skill" button
+appears, enabled only when charged — for ultimates), others **Auto** with a condition
+(`WhenCharged`, `EnemyInRange` = "enemy in front", or `AllyWounded`). Effects resolve
+through `BattleController.ResolveAbility` against a small **status-effect system** on
+`CombatUnit` (damage buffs, attack-speed, damage-reduction, shields with an absorb pool,
+stun, slow, heal-over-time, taunt aggro, multishot); effects refresh rather than stack to
+keep it bounded. Abilities support an optional **secondary effect** (so e.g. AoE+stun,
+shield+taunt work). **Additive + guarded:** units spawned from a bare `CombatUnitDefinition`
+(enemies, the old test squad) carry no abilities and behave exactly as before, so the
+unverified Stage 1 combat isn't changed for them. `Setup Combat Scene` now deploys roster
+characters (Khulan/Sukhbaatar) as the test squad when the roster exists, to demo abilities.
+Still needs a play-test on the PC. Detail in `10 - Characters & Abilities.md`.
+
 ## Save format: versioned JSON, local-first (2026-06-22)
 Save is a single JSON file in `Application.persistentDataPath` carrying a `version` field and a `lastSavedUnixSeconds` timestamp. The version field exists so saves can be migrated when the schema grows and when we move local → backend (Phase 6). Partially resolves the "save data format and migration strategy" open question.
