@@ -107,6 +107,20 @@ build plan, and open questions. **Key call:** verify the current (unverified) co
 PC **before** starting this rebuild. Why design-first: this replaces the heart of combat
 (lanes→paths, base-HP→life points, fixed-counts→DP), so a reviewed plan beats blind code.
 
+## 7. Combat core — Phase 1: terrain palette (map pool)
+Built the reusable terrain building blocks the user asked for:
+- `TerrainDefinition` SO with a **tile texture slot** (`tileSprite`, color fallback), rules
+  (elevation, deploy, walkable, move multiplier, conceal), and a **selectable on-tile
+  effect** (`onTileEffect` from the existing `EffectType` list + magnitude + who it affects)
+  — so terrain reuses the ability/status-effect system.
+- `Malchin > Create Terrain Palette` (`TerrainPaletteBuilder.cs`) generates 8 starter
+  terrains (grass, hill/high-ground, river, mud, reeds, ovoo shrine, scorched, sand/snow).
+- `LevelDefinition` gained a whole-map **`background`** sprite + a **`tiles[]`** terrain-per-
+  cell array (+ `TileAt`) ready for the Phase 2 map editor — so future maps are "drop tiles
+  on a grid + set a background."
+- **Why:** matches the request — easy map-building from tiles, per-tile textures, a big
+  background, and freely-chosen terrain effects that recycle what we built.
+
 ---
 
 ## What still needs the PC (not done from mobile)

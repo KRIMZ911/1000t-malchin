@@ -98,8 +98,14 @@ reeds. New terrains = new assets, no code.
 
 0. **Verify current combat on the PC** (run the roster + combat setup, fix any errors).
    Don't start the refactor on unverified code.
-1. **Terrain data model** — `TerrainDefinition` SO + a one-click terrain-palette generator.
-   (Data only, zero risk.)
+1. ✅ **Terrain data model (DONE 2026-06-24)** — `TerrainDefinition` SO + a one-click
+   palette generator (`Malchin > Create Terrain Palette`). Each terrain has: a **tile
+   texture slot** (`tileSprite`, placeholder color until assigned), elevation, deploy rule,
+   walkable flag, move multiplier, conceal flag, and a **selectable on-tile effect**
+   (`onTileEffect` from the existing `EffectType` vocabulary + magnitude + who it affects)
+   — so terrain recycles the ability/status-effect system. `LevelDefinition` also gained a
+   **whole-map `background` sprite** and a `tiles[]` array (terrain per cell) ready for the
+   Phase 2 map editor. Built the 8 starter terrains as the **map pool**.
 2. **Tile map in `LevelDefinition` + `BattleGrid`** — author/store terrain per cell; render
    it; tile queries. (Replaces the plain grid visual.)
 3. **Paths + life points** — waypoints, enemies follow the path, goal tiles, life-point

@@ -65,7 +65,7 @@
 ### Combat core → full Arknights (design locked, see `11`)
 - [x] Design the Arknights combat core (blocking, DP, paths, high/low ground, terrain) — 2026-06-24
 - [ ] **P0: verify existing combat on PC before refactoring**
-- [ ] P1: `TerrainDefinition` SO + one-click terrain-palette generator
+- [x] P1: `TerrainDefinition` SO (texture slot + selectable effect) + `Malchin > Create Terrain Palette` (8 terrains) + level `background` + `tiles[]` — 2026-06-24
 - [ ] P2: tile map in `LevelDefinition` + `BattleGrid` render/queries
 - [ ] P3: designed paths + life points (replace straight-down + base HP)
 - [ ] P4: DP deployment economy (replace fixed unit counts) + retreat/redeploy
