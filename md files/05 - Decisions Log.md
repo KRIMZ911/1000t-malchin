@@ -90,5 +90,22 @@ unverified Stage 1 combat isn't changed for them. `Setup Combat Scene` now deplo
 characters (Khulan/Sukhbaatar) as the test squad when the roster exists, to demo abilities.
 Still needs a play-test on the PC. Detail in `10 - Characters & Abilities.md`.
 
+## Combat areas: grid for placement, continuous world-space shapes for hits (2026-06-24)
+Formalized the split the user asked for: **placement uses the grid** (units snap to cells,
+Arknights-style — purely to make deployment clean), while **attacks and areas of effect are
+resolved as continuous world-space shapes** (circle / cone / line), because enemies move
+smoothly and snapping hit-detection to tiles would feel wrong. **Phase 1 (foundation)
+built:** an `AreaShape` type (`AoeShape` Circle/Cone/Line + `ShapeAnchor` Caster/TargetEnemy
++ `ShapeDirection` Forward/TowardNearestEnemy + radius/coneAngle/lineWidth) in `Ability.cs`,
+and a single resolver `BattleController.GatherUnitsInShape` doing the circle/cone/line math
+(replacing the old circle-only `EnemiesAroundPoint`). "Forward" = toward the foe (players
+face up the grid, enemies down). It is **behavior-preserving**: abilities without a custom
+shape fall back to a circle of their old `radius`, so existing skills resolve identically;
+new shapes are now possible. Decisions taken (defaults, since the structured answers didn't
+arrive): shapes = Circle+Cone+Line (no grid-box); aim = Forward by default; attack reach to
+become per-unit shapes (Phase 2); enemies stay in-lane for now (pathing later). Remaining
+phases: 2 attack-reach shapes, 3 per-character shapes, 4 visual telegraphs, 5 verify.
+Full system in `10 - Characters & Abilities.md`.
+
 ## Save format: versioned JSON, local-first (2026-06-22)
 Save is a single JSON file in `Application.persistentDataPath` carrying a `version` field and a `lastSavedUnixSeconds` timestamp. The version field exists so saves can be migrated when the schema grows and when we move local → backend (Phase 6). Partially resolves the "save data format and migration strategy" open question.

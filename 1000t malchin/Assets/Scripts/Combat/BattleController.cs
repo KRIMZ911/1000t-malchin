@@ -404,7 +404,7 @@ namespace Malchin.Combat
                     break;
                 case EffectTarget.AllAllies:
                 case EffectTarget.AlliesInRadius:
-                    AlliesWithin(caster, radius, true, results);
+                    GatherUnitsInShape(caster, ShapeFor(ab, allyTarget: true), sameTeam: true, results);
                     break;
                 case EffectTarget.MostWoundedAlly:
                     var w = MostWoundedAlly(caster, radius, true);
@@ -415,21 +415,84 @@ namespace Malchin.Combat
                     if (e != null) results.Add(e);
                     break;
                 case EffectTarget.EnemiesInRadius:
-                    var focus = NearestOpponentWithin(caster, 9999f);
-                    if (focus != null) EnemiesAroundPoint(caster, focus.transform.position, radius, results);
+                    GatherUnitsInShape(caster, ShapeFor(ab, allyTarget: false), sameTeam: false, results);
                     break;
             }
         }
 
-        void EnemiesAroundPoint(CombatUnit caster, Vector3 point, float radius, List<CombatUnit> results)
+        /// <summary>The ability's authored AreaShape, or a legacy circle of its radius if none.</summary>
+        AreaShape ShapeFor(Ability ab, bool allyTarget)
         {
-            float rSq = radius * radius;
+            if (ab.useCustomShape && ab.area != null) return ab.area;
+            return new AreaShape
+            {
+                shape = AoeShape.Circle,
+                anchor = allyTarget ? ShapeAnchor.Caster : ShapeAnchor.TargetEnemy,
+                radius = ab.radius > 0f ? ab.radius : 9999f
+            };
+        }
+
+        /// <summary>
+        /// Collect every unit of the chosen side that falls inside the area shape, resolved
+        /// in continuous world space (circle/cone/line). The grid is only for placement.
+        /// </summary>
+        public void GatherUnitsInShape(CombatUnit caster, AreaShape area, bool sameTeam, List<CombatUnit> results)
+        {
+            if (caster == null || area == null) return;
+
+            var focus = NearestOpponentWithin(caster, 9999f);
+            Vector2 casterPos = caster.transform.position;
+            Vector2 origin = (area.anchor == ShapeAnchor.TargetEnemy && focus != null)
+                ? (Vector2)focus.transform.position
+                : casterPos;
+            Vector2 dir = ShapeDirection2D(caster, area, focus);
+
+            float rSq = area.radius * area.radius;
+            float cosHalfAngle = Mathf.Cos(Mathf.Deg2Rad * area.coneAngle * 0.5f);
+            float halfWidthSq = (area.lineWidth * 0.5f) * (area.lineWidth * 0.5f);
+
             for (int i = 0; i < _units.Count; i++)
             {
                 var u = _units[i];
-                if (u == null || u.team == caster.team) continue;
-                if (((Vector2)(u.transform.position - point)).sqrMagnitude <= rSq) results.Add(u);
+                if (u == null) continue;
+                bool ally = u.team == caster.team;
+                if (sameTeam != ally) continue;
+
+                Vector2 to = (Vector2)u.transform.position - origin;
+                switch (area.shape)
+                {
+                    case AoeShape.Circle:
+                        if (to.sqrMagnitude <= rSq) results.Add(u);
+                        break;
+                    case AoeShape.Cone:
+                    {
+                        float d = to.magnitude;
+                        if (d > area.radius) break;
+                        if (d < 0.0001f) { results.Add(u); break; }
+                        if (Vector2.Dot(to / d, dir) >= cosHalfAngle) results.Add(u);
+                        break;
+                    }
+                    case AoeShape.Line:
+                    {
+                        float t = Vector2.Dot(to, dir);          // distance along the line
+                        if (t < 0f || t > area.radius) break;
+                        Vector2 perp = to - dir * t;             // offset from the line's spine
+                        if (perp.sqrMagnitude <= halfWidthSq) results.Add(u);
+                        break;
+                    }
+                }
             }
+        }
+
+        Vector2 ShapeDirection2D(CombatUnit caster, AreaShape area, CombatUnit focus)
+        {
+            if (area.direction == ShapeDirection.TowardNearestEnemy && focus != null)
+            {
+                Vector2 d = (Vector2)(focus.transform.position - caster.transform.position);
+                if (d.sqrMagnitude > 0.0001f) return d.normalized;
+            }
+            // Forward: player units face up the grid, enemies face down toward the base.
+            return caster.team == CombatTeam.Player ? Vector2.up : Vector2.down;
         }
 
         void ApplyEffect(CombatUnit caster, CombatUnit target, EffectType effect, float magnitude, float duration)

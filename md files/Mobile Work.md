@@ -67,6 +67,20 @@ Made the abilities actually work in battle.
 - Files: `Ability.cs`, `CombatUnit.cs`, `BattleController.cs`, `BattleHUD.cs`,
   `CombatSceneSetup.cs`, `RosterBuilder.cs`.
 
+## 4. Area-shape system — Phase 1 (foundation)
+Started formalizing combat areas: **grid = placement only; attacks/AoE = continuous
+world-space shapes** (circle / cone / line), since enemies move smoothly.
+- Added `AreaShape` + `AoeShape` (Circle/Cone/Line), `ShapeAnchor`, `ShapeDirection` to
+  `Ability.cs`.
+- Added one resolver, `BattleController.GatherUnitsInShape` (circle/cone/line math),
+  replacing the old circle-only `EnemiesAroundPoint`.
+- **Behavior-preserving:** abilities without a custom shape fall back to a circle of their
+  old radius, so nothing changes yet; cones/lines are now possible.
+- Decisions (defaults, structured answers didn't arrive): Circle+Cone+Line; aim Forward by
+  default; per-unit attack-reach shapes coming in Phase 2; enemies stay in-lane for now.
+- **Next phases:** 2 attack-reach shapes · 3 per-character shapes · 4 visual telegraphs ·
+  5 verify on PC.
+
 ---
 
 ## What still needs the PC (not done from mobile)

@@ -67,6 +67,42 @@ namespace Malchin.Combat
     }
 
     /// <summary>
+    /// The geometric form of an area, resolved in continuous world space (NOT grid cells)
+    /// so it works against smoothly-moving enemies. The grid is only for placement.
+    /// </summary>
+    public enum AoeShape { Circle, Cone, Line }
+
+    /// <summary>Where an area shape originates / is centered.</summary>
+    public enum ShapeAnchor { Caster, TargetEnemy }
+
+    /// <summary>Which way a cone or line points.</summary>
+    public enum ShapeDirection { Forward, TowardNearestEnemy }
+
+    /// <summary>
+    /// A world-space area: a circle (burst), a cone (fan), or a line (beam/lane strip).
+    /// <list type="bullet">
+    /// <item><b>Circle</b> — within <see cref="radius"/> of the origin.</item>
+    /// <item><b>Cone</b> — within <see cref="radius"/> length and <see cref="coneAngle"/> total angle of the direction.</item>
+    /// <item><b>Line</b> — within <see cref="radius"/> length and <see cref="lineWidth"/> total width along the direction.</item>
+    /// </list>
+    /// "Forward" means toward the foe (player units face up the grid, enemies face down).
+    /// </summary>
+    [System.Serializable]
+    public class AreaShape
+    {
+        public AoeShape shape = AoeShape.Circle;
+        public ShapeAnchor anchor = ShapeAnchor.TargetEnemy;
+        [Tooltip("Circle radius, or cone/line length, in world units.")]
+        [Min(0f)] public float radius = 1.5f;
+        [Tooltip("Cone only: total opening angle in degrees.")]
+        [Min(0f)] public float coneAngle = 60f;
+        [Tooltip("Line only: total width in world units.")]
+        [Min(0f)] public float lineWidth = 1f;
+        [Tooltip("Cone/Line only: which way the shape points.")]
+        public ShapeDirection direction = ShapeDirection.Forward;
+    }
+
+    /// <summary>
     /// One ability (a Talent or a Skill) attached to a CharacterDefinition.
     /// Plain serializable data — travels with its character, tunable in the Inspector.
     /// </summary>
@@ -101,6 +137,11 @@ namespace Malchin.Combat
         public EffectType secondaryEffect = EffectType.None;
         public float secondaryMagnitude;
         [Min(0f)] public float secondaryDuration;
+
+        [Header("Area shape (for AlliesInRadius / EnemiesInRadius targets)")]
+        [Tooltip("If on, use the AreaShape below. If off, falls back to a circle of 'radius' (legacy).")]
+        public bool useCustomShape = false;
+        public AreaShape area = new AreaShape();
 
         public bool HasEffect => effect != EffectType.None;
         public bool HasSecondary => secondaryEffect != EffectType.None;
