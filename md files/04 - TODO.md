@@ -66,7 +66,7 @@
 - [x] Design the Arknights combat core (blocking, DP, paths, high/low ground, terrain) — 2026-06-24
 - [ ] **P0: verify existing combat on PC before refactoring**
 - [x] P1: `TerrainDefinition` SO (texture slot + selectable effect) + `Malchin > Create Terrain Palette` (8 terrains) + level `background` + `tiles[]` — 2026-06-24
-- [ ] P2: tile map in `LevelDefinition` + `BattleGrid` render/queries
+- [x] P2: `BattleGrid` renders background + per-cell terrain + lines, terrain queries; `Malchin > Map Editor` paint tool — 2026-06-24
 - [ ] P3: designed paths + life points (replace straight-down + base HP)
 - [ ] P4: DP deployment economy (replace fixed unit counts) + retreat/redeploy
 - [ ] P5: blocking (`blockCount`/`blockCost`)

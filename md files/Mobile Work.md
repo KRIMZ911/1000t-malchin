@@ -121,6 +121,19 @@ Built the reusable terrain building blocks the user asked for:
 - **Why:** matches the request — easy map-building from tiles, per-tile textures, a big
   background, and freely-chosen terrain effects that recycle what we built.
 
+## 8. Combat core — Phase 2: tile map render + map editor
+Made maps real and easy to author:
+- **`BattleGrid`** now renders a **whole-map background**, a **per-cell terrain layer** (uses
+  each terrain's tile texture, or its placeholder color), and grid lines. Added terrain
+  queries (`TerrainAt`, `CanWalk`, `CanDeploy`) for later phases. `BattleController` now
+  configures the grid from the whole level (`grid.Configure(level)`).
+- **`Malchin > Map Editor`** (`MapEditorWindow.cs`): pick a level, pick a terrain brush from
+  the palette, **paint cells** to build the map (base row at the bottom), set the background,
+  resize the grid, fill-all, save. This is the "easily create maps by adding tiles" tool.
+- **Not yet enforced:** terrain deploy/path rules (which unit can stand where, walls blocking
+  enemies) — that's phases P5/P6. For now terrain is rendered + queryable, so the demo still
+  works as before.
+
 ---
 
 ## What still needs the PC (not done from mobile)

@@ -91,7 +91,7 @@ namespace Malchin.Combat
 
             ClearUnits();
             grid.transform.position = battleAnchor;
-            grid.Configure(level.gridWidth, level.gridHeight, level.cellSize);
+            grid.Configure(level);   // renders terrain tiles + background
 
             State = BattleState.Fighting;
             _baseHP = level.baseMaxHP;

@@ -106,8 +106,14 @@ reeds. New terrains = new assets, no code.
    — so terrain recycles the ability/status-effect system. `LevelDefinition` also gained a
    **whole-map `background` sprite** and a `tiles[]` array (terrain per cell) ready for the
    Phase 2 map editor. Built the 8 starter terrains as the **map pool**.
-2. **Tile map in `LevelDefinition` + `BattleGrid`** — author/store terrain per cell; render
-   it; tile queries. (Replaces the plain grid visual.)
+2. ✅ **Tile map + map editor (DONE 2026-06-24)** — `BattleGrid` now renders a **whole-map
+   background**, a **per-cell terrain layer** (tile textures, or placeholder colors), and
+   grid lines, and answers terrain queries (`TerrainAt`, `CanWalk`, `CanDeploy`). A
+   **`Malchin > Map Editor`** window lets you pick a level, choose a terrain brush from the
+   palette, and **paint cells** to build the map (row 0 / base edge at the bottom), plus set
+   the background and resize the grid. Deploy/path *enforcement* of terrain comes in later
+   phases (P5/P6); for now terrain is rendered + queryable. `BattleController` configures the
+   grid from the full level (`grid.Configure(level)`).
 3. **Paths + life points** — waypoints, enemies follow the path, goal tiles, life-point
    loss/defeat. (Replaces straight-down + base HP.)
 4. **DP economy** — DP tick, deploy costs DP, deploy validity (terrain + elevation + DP),
