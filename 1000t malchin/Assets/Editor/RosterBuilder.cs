@@ -31,11 +31,12 @@ namespace Malchin.EditorTools
                 talent: Passive("Khan's Banner",
                     "Allies near Naranbaatar deal +15% damage.",
                     EffectType.DamageBoost, EffectTarget.AlliesInRadius, magnitude: 15f, radius: 3f),
-                skill: Skill("Sunlit Charge", 12f,
-                    "Surges forward, smashing nearby enemies for 40 damage and stunning them for 1.5s. (Tap to use.)",
+                skill: WithShape(Skill("Sunlit Charge", 12f,
+                    "Charges forward in a wide arc, smashing enemies ahead for 40 damage and stunning them 1.5s. (Tap to use.)",
                     EffectType.AoeDamage, EffectTarget.EnemiesInRadius, magnitude: 40f, duration: 0f, radius: 1.8f,
                     activation: ActivationMode.Manual,
-                    secondary: EffectType.Stun, secMag: 0f, secDur: 1.5f));
+                    secondary: EffectType.Stun, secMag: 0f, secDur: 1.5f),
+                    AoeShape.Cone, ShapeAnchor.Caster, radius: 2.4f, coneAngle: 90f, dir: ShapeDirection.Forward));
 
             Make("sarangerel", "Sarangerel", "the Moonlight Shaman", Rarity.Star6, CharacterRole.Shaman,
                 "She reads the Eternal Blue Sky and calls its mercy down onto the wounded.",
@@ -44,11 +45,12 @@ namespace Malchin.EditorTools
                 talent: Passive("Eternal Blue Sky",
                     "Nearby allies recover 2 HP per second.",
                     EffectType.HealOverTime, EffectTarget.AlliesInRadius, magnitude: 2f, radius: 2.5f, duration: 0f),
-                skill: Skill("Tengri's Blessing", 15f,
-                    "Heals all nearby allies for 35 and shields them for 30 over 6s. (Tap to use.)",
+                skill: WithShape(Skill("Tengri's Blessing", 15f,
+                    "Heals allies around her for 35 and shields them for 30 over 6s. (Tap to use.)",
                     EffectType.Heal, EffectTarget.AllAllies, magnitude: 35f, duration: 0f, radius: 3f,
                     activation: ActivationMode.Manual,
-                    secondary: EffectType.Shield, secMag: 30f, secDur: 6f));
+                    secondary: EffectType.Shield, secMag: 30f, secDur: 6f),
+                    AoeShape.Circle, ShapeAnchor.Caster, radius: 3f));
 
             // ── 5★ Epic ─────────────────────────────────────────────────────────
             Make("khulan", "Khulan", "the Wind-Rider", Rarity.Star5, CharacterRole.HorseArcher,
@@ -58,10 +60,11 @@ namespace Malchin.EditorTools
                 talent: Passive("Twin Quiver",
                     "Each shot fires an extra arrow at the same target.",
                     EffectType.MultiShot, EffectTarget.SingleEnemy, magnitude: 1f),
-                skill: Skill("Arrow Storm", 10f,
-                    "Rains arrows on an area, dealing 18 damage to all enemies caught in it. (Auto: when a foe is in range.)",
+                skill: WithShape(Skill("Arrow Storm", 10f,
+                    "Rains arrows on the enemy cluster, dealing 18 damage to all caught in the circle. (Auto: when a foe is in range.)",
                     EffectType.AoeDamage, EffectTarget.EnemiesInRadius, magnitude: 18f, duration: 0f, radius: 2.5f,
-                    activation: ActivationMode.Auto, condition: AutoFireCondition.EnemyInRange));
+                    activation: ActivationMode.Auto, condition: AutoFireCondition.EnemyInRange),
+                    AoeShape.Circle, ShapeAnchor.TargetEnemy, radius: 2.5f));
 
             Make("ganbaatar", "Ganbaatar", "Ironwall", Rarity.Star5, CharacterRole.Defender,
                 "An unmovable spearman. Lines break on him like water on stone.",
@@ -70,11 +73,12 @@ namespace Malchin.EditorTools
                 talent: Passive("Stoneheart",
                     "Takes 25% less damage from all sources.",
                     EffectType.DamageReduction, EffectTarget.SelfOnly, magnitude: 25f),
-                skill: Skill("Shieldwall", 14f,
-                    "Raises a wall: shields nearby allies for 40 over 6s and taunts enemies to strike him. (Tap to use.)",
+                skill: WithShape(Skill("Shieldwall", 14f,
+                    "Raises a wall: shields allies around him for 40 over 6s and taunts enemies to strike him. (Tap to use.)",
                     EffectType.Shield, EffectTarget.AlliesInRadius, magnitude: 40f, duration: 6f, radius: 2f,
                     activation: ActivationMode.Manual,
-                    secondary: EffectType.Taunt, secMag: 0f, secDur: 4f));
+                    secondary: EffectType.Taunt, secMag: 0f, secDur: 4f),
+                    AoeShape.Circle, ShapeAnchor.Caster, radius: 2f));
 
             // ── 4★ Rare ─────────────────────────────────────────────────────────
             Make("tamir", "Tamir", "Swiftstream", Rarity.Star4, CharacterRole.HorseArcher,
@@ -84,10 +88,11 @@ namespace Malchin.EditorTools
                 talent: Passive("Eagle Eye",
                     "Attacks 15% faster.",
                     EffectType.AttackSpeedBoost, EffectTarget.SelfOnly, magnitude: 15f),
-                skill: Skill("Piercing Shot", 8f,
-                    "A heavy shot dealing 30 bonus damage that ignores armor. (Auto: when a foe is in range.)",
-                    EffectType.ArmorPierce, EffectTarget.SingleEnemy, magnitude: 30f,
-                    activation: ActivationMode.Auto, condition: AutoFireCondition.EnemyInRange));
+                skill: WithShape(Skill("Piercing Shot", 8f,
+                    "A heavy arrow that pierces straight up the lane, dealing 30 armor-ignoring damage to every enemy in its path. (Auto: when a foe is in range.)",
+                    EffectType.ArmorPierce, EffectTarget.EnemiesInRadius, magnitude: 30f,
+                    activation: ActivationMode.Auto, condition: AutoFireCondition.EnemyInRange),
+                    AoeShape.Line, ShapeAnchor.Caster, radius: 5f, lineWidth: 0.8f, dir: ShapeDirection.Forward));
 
             Make("sukhbaatar", "Sukhbaatar", "the Axe", Rarity.Star4, CharacterRole.Horseman,
                 "Swings a broad axe in wide, crushing arcs.",
@@ -96,10 +101,11 @@ namespace Malchin.EditorTools
                 talent: Passive("Bloodlust",
                     "Deals 10% more damage.",
                     EffectType.DamageBoost, EffectTarget.SelfOnly, magnitude: 10f),
-                skill: Skill("Cleave", 9f,
-                    "A sweeping blow hitting all adjacent enemies for 25 damage. (Auto: when a foe is in range.)",
+                skill: WithShape(Skill("Cleave", 9f,
+                    "A wide sweeping blow hitting all enemies in a forward arc for 25 damage. (Auto: when a foe is in range.)",
                     EffectType.AoeDamage, EffectTarget.EnemiesInRadius, magnitude: 25f, duration: 0f, radius: 1.5f,
-                    activation: ActivationMode.Auto, condition: AutoFireCondition.EnemyInRange));
+                    activation: ActivationMode.Auto, condition: AutoFireCondition.EnemyInRange),
+                    AoeShape.Cone, ShapeAnchor.Caster, radius: 1.8f, coneAngle: 120f, dir: ShapeDirection.Forward));
 
             Make("oyun", "Oyun", "the Herbalist", Rarity.Star4, CharacterRole.Support,
                 "Keeps a satchel of steppe remedies for the worst-hurt rider.",
@@ -252,6 +258,19 @@ namespace Malchin.EditorTools
                 effect = effect, target = target, magnitude = magnitude, duration = duration, radius = radius,
                 secondaryEffect = secondary, secondaryMagnitude = secMag, secondaryDuration = secDur
             };
+
+        /// <summary>Give a skill a custom world-space area shape (circle / cone / line).</summary>
+        private static Ability WithShape(Ability a, AoeShape shape, ShapeAnchor anchor, float radius,
+            float coneAngle = 60f, float lineWidth = 1f, ShapeDirection dir = ShapeDirection.Forward)
+        {
+            a.useCustomShape = true;
+            a.area = new AreaShape
+            {
+                shape = shape, anchor = anchor, radius = radius,
+                coneAngle = coneAngle, lineWidth = lineWidth, direction = dir
+            };
+            return a;
+        }
 
         private static Ability None() => new Ability { kind = AbilityKind.Skill, effect = EffectType.None };
 

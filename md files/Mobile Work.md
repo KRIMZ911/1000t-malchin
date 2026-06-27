@@ -81,6 +81,21 @@ world-space shapes** (circle / cone / line), since enemies move smoothly.
 - **Next phases:** 2 attack-reach shapes · 3 per-character shapes · 4 visual telegraphs ·
   5 verify on PC.
 
+## 5. Area-shape system — Phase 3 (per-character skill shapes)
+Assigned each skill a real world-space shape using the Phase 1 system (`RosterBuilder.cs`,
+via a new `WithShape` helper):
+- **Cones (forward):** Sunlit Charge (Naranbaatar, 90°), Cleave (Sukhbaatar, 120° sweep).
+- **Line (up the lane):** Piercing Shot (Tamir) — **changed from single-target to a piercing
+  line** that hits every enemy in its path (first real Line showcase).
+- **Circles:** Arrow Storm (on the enemy cluster), Tengri's Blessing + Shieldwall (around the
+  caster).
+- Healing Brew stays single-target; talent auras stay circles.
+- **Why these:** each shape matches the ability's fantasy (a charge/sweep = cone, a piercing
+  arrow = line, rained arrows / protective auras = circle). All shapes are data on the
+  ability, tunable later. Table in `10 - Characters & Abilities.md`.
+- **Note:** this is the skill-AoE half of Phase 3. Per-unit **attack-reach** shapes need
+  Phase 2 (a `rangeShape` field + a targeting change) — **not done yet**, flagged for next.
+
 ---
 
 ## What still needs the PC (not done from mobile)

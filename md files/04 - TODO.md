@@ -54,6 +54,13 @@
 - [x] **Runtime: abilities fire in battle** — ability-runner on `CombatUnit` (charge bar, auto/manual fire) + status-effect system (buff/shield/stun/slow/HoT/taunt/multishot) + `ResolveAbility` — 2026-06-24
 - [x] Manual vs auto activation: manual = tap unit → HUD "Use skill" button; auto = on charge / enemy-in-range / ally-wounded — 2026-06-24
 - [ ] **VERIFY on PC:** run `Create Starter Roster` → `Setup Combat Scene`, play; confirm charge bars, auto-fire, and manual skill button work
+
+### Area-shape system (grid = placement; attacks/AoE = world-space shapes)
+- [x] Phase 1: `AreaShape` model (circle/cone/line) + `GatherUnitsInShape` resolver (behavior-preserving) — 2026-06-24
+- [x] Phase 3: per-character skill shapes (cones/lines/circles) in `RosterBuilder` — 2026-06-24
+- [ ] Phase 2: per-unit **attack-reach** shapes (`rangeShape` on `CombatUnitDefinition` + targeting uses it)
+- [ ] Phase 4: visual telegraphs (draw range + AoE shapes as placeholders)
+- [ ] Phase 5: verify shapes on PC
 - [ ] `GachaPool` data: characters per tier + rate table (6★2/5★8/4★30/3★30/2★20/1★10) + pity config
 - [ ] Two-tier currency: Special Horses (earned) + Sky-Blue Khadag (paid); balances in save
 - [ ] Player roster persisted in save: `characterId → { count, potential }` + `pityCounter` (bump save version + migrate)

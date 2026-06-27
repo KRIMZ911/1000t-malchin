@@ -106,6 +106,27 @@ Skills carry an **ActivationMode**:
 Every chargeable unit shows a **charge bar** above its HP bar (blue filling → **gold when
 ready**). Talents are passive and always on.
 
+## Area shapes per skill (Phase 3, 2026-06-24)
+Placement is on the grid; **skill areas resolve as continuous world-space shapes** (so they
+work against moving enemies). Each skill's area was assigned to fit its fantasy:
+
+| Skill | Character | Shape | Why |
+|---|---|---|---|
+| Sunlit Charge | Naranbaatar | **Cone** (fwd, 90°, len 2.4) | a charging warlord smashes a wide arc ahead |
+| Cleave | Sukhbaatar | **Cone** (fwd, 120°, len 1.8) | a wide axe sweep in front |
+| Piercing Shot | Tamir | **Line** (fwd, len 5, width 0.8) | an arrow that pierces straight up the lane, hitting all in its path |
+| Arrow Storm | Khulan | **Circle** (on enemy cluster, r 2.5) | arrows rain down on a group |
+| Tengri's Blessing | Sarangerel | **Circle** (on caster, r 3) | a heal/shield aura around her |
+| Shieldwall | Ganbaatar | **Circle** (on caster, r 2) | protects allies around him |
+| Healing Brew | Oyun | (single target) | heals one most-wounded ally |
+
+Notes:
+- **Cone/Line "Forward"** = toward the foe (player units face up the grid).
+- **Piercing Shot changed** from single-target to a piercing **line** that can hit multiple
+  enemies — the first real showcase of the Line shape.
+- **Talent auras** (Khan's Banner, Eternal Blue Sky) stay simple circles around the caster.
+- All shapes live in data on each ability (`useCustomShape` + `AreaShape`), tunable later.
+
 ## Status: what's built vs. what's next
 - ✅ **Data model** — `Ability.cs` (now incl. ActivationMode + AutoFireCondition + optional
   secondary effect), `CharacterDefinition.cs`.
