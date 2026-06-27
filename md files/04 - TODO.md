@@ -67,7 +67,8 @@
 - [ ] **P0: verify existing combat on PC before refactoring**
 - [x] P1: `TerrainDefinition` SO (texture slot + selectable effect) + `Malchin > Create Terrain Palette` (8 terrains) + level `background` + `tiles[]` — 2026-06-24
 - [x] P2: `BattleGrid` renders background + per-cell terrain + lines, terrain queries; `Malchin > Map Editor` paint tool — 2026-06-24
-- [ ] P3: designed paths + life points (replace straight-down + base HP)
+- [x] Enemy characters: `EnemyDefinition` (stat block + abilities + blockCost/leakDamage/isBoss) + `Malchin > Create Enemy Roster` (6 foes, some with abilities); spawns now use it — 2026-06-24
+- [ ] P3: designed paths + life points (replace straight-down + base HP) — enemies now ready to path-follow
 - [ ] P4: DP deployment economy (replace fixed unit counts) + retreat/redeploy
 - [ ] P5: blocking (`blockCount`/`blockCost`)
 - [ ] P6: high/low ground deploy rules + facing on deploy

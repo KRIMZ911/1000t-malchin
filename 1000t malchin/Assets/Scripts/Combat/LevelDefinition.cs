@@ -3,11 +3,11 @@ using UnityEngine;
 
 namespace Malchin.Combat
 {
-    /// <summary>One scheduled enemy: which type, when (seconds after start), and in which column.</summary>
+    /// <summary>One scheduled enemy: which enemy type, when (seconds after start), and in which column.</summary>
     [System.Serializable]
     public class EnemySpawn
     {
-        public CombatUnitDefinition enemy;
+        public EnemyDefinition enemy;
         [Min(0f)] public float time;
         [Min(0)] public int column;
     }

@@ -51,6 +51,28 @@ on it. Tiles have an **elevation**: **Low ground** (melee) or **High ground** (r
 - Attacks and skill areas resolve as **world-space shapes** (circle/cone/line) — done.
 - On high/low ground with facing, ranged range shapes finally have a real tactical home.
 
+## Enemy characters (foe-side roster) — DONE 2026-06-24
+Enemies are first-class characters, mirroring the player roster, and **some have abilities**.
+- **`EnemyDefinition`** (SO): identity + a `CombatUnitDefinition` stat block + the **same
+  Talent/Skill ability system** the players use + enemy fields: **`blockCost`** (block slots
+  it occupies, Phase 5), **`leakDamage`** (life lost if it reaches the goal, Phase 3),
+  **`isBoss`**. No rarity/potential/deploy-cost (enemies aren't collectible).
+- The ability runtime is **team-relative**, so enemy skills "just work": an enemy's "allies"
+  are other enemies, its "enemies" are your units. Enemy skills are **Auto** (no manual).
+- **`EnemySpawn.enemy`** now references an `EnemyDefinition` (was a bare stat block); spawning
+  goes through `CombatUnit.InitEnemy` so enemies get abilities + block/leak data.
+- **`Malchin > Create Enemy Roster`** generates the starter foes:
+  | Enemy | Notes | Ability |
+  |---|---|---|
+  | Steppe Raider | basic chaff | — |
+  | Wolf Rider | fast, fragile | — |
+  | Marauder Brute | tanky, blockCost 2 | *talent:* −30% damage taken |
+  | Crossbow Marauder | ranged harasser | — |
+  | Witch of the Wastes | enemy healer | *skill:* heal nearby raiders (auto when hurt) |
+  | Renegade Warlord | boss, blockCost 3, leak 5 | *talent:* +20% dmg aura · *skill:* AoE smash on your units |
+- These will **follow the designed path** once Phase 3 (paths) lands; today they advance as
+  before but now carry abilities and tower-defense data.
+
 ## The terrain system (data-driven, expandable)
 
 A **`TerrainDefinition`** (ScriptableObject) per tile type, so we can add terrains forever

@@ -23,8 +23,13 @@ namespace Malchin.Combat
     public class CombatUnit : MonoBehaviour
     {
         public CombatUnitDefinition def;
-        public CharacterDefinition character;   // null = no abilities
+        public CharacterDefinition character;   // player-side, null for enemies / plain units
+        public EnemyDefinition enemy;           // enemy-side, null otherwise
         public CombatTeam team;
+
+        // Enemy path/tower-defense data (used from Phase 3/5 on).
+        [System.NonSerialized] public int blockCost = 1;
+        [System.NonSerialized] public int leakDamage = 1;
 
         // Set for player units placed on a grid cell, so the cell frees on death.
         [System.NonSerialized] public Vector2Int cell;
@@ -50,7 +55,10 @@ namespace Malchin.Combat
         public bool IsEnemy => team == CombatTeam.Enemy;
         public bool IsAlive => _hp > 0f;
         public float HealthFraction => def != null && def.maxHP > 0f ? Mathf.Clamp01(_hp / def.maxHP) : 0f;
-        public string DisplayName => character != null ? character.displayName : (def != null ? def.displayName : "Unit");
+        public string DisplayName =>
+            character != null ? character.displayName :
+            enemy != null ? enemy.displayName :
+            def != null ? def.displayName : "Unit";
         public string SkillName => _skill != null ? _skill.displayName : "";
         public bool HasManualSkill => _hasSkill && _skill.IsManual;
         public bool SkillReady => _hasSkill && _charge >= _skill.chargeTime;
@@ -71,6 +79,17 @@ namespace Malchin.Combat
             def = ch.combatStats;
             _talent = ch.HasTalent ? ch.talent : null;
             _skill = ch.HasSkill ? ch.skill : null;
+            SetupCommon(t, baseY);
+        }
+
+        public void InitEnemy(EnemyDefinition e, CombatTeam t, float baseY)
+        {
+            enemy = e;
+            def = e.combatStats;
+            _talent = e.HasTalent ? e.talent : null;
+            _skill = e.HasSkill ? e.skill : null;
+            blockCost = Mathf.Max(1, e.blockCost);
+            leakDamage = Mathf.Max(0, e.leakDamage);
             SetupCommon(t, baseY);
         }
 

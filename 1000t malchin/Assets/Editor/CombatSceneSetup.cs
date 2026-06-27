@@ -37,9 +37,16 @@ namespace Malchin.EditorTools
                 maxHP: 45, dmg: 8, interval: 0.8f, range: 0.9f, speed: 2.2f,
                 MoveBehavior.Advance, new Color(0.20f, 0.80f, 0.85f), 0.40f);
 
-            var raider = CreateUnit("CombatRaider", "raider", "Raider",
-                maxHP: 24, dmg: 5, interval: 1.0f, range: 0.9f, speed: 1.4f,
-                MoveBehavior.Advance, new Color(0.90f, 0.30f, 0.30f), 0.38f);
+            // Enemy as a first-class enemy character. Prefer the generated enemy roster's
+            // raider if present; otherwise build a simple inline one so setup is self-contained.
+            var raider = AssetDatabase.LoadAssetAtPath<EnemyDefinition>($"{DataFolder}/Enemies/Raider.asset");
+            if (raider == null)
+            {
+                var raiderStats = CreateUnit("CombatRaider", "raider", "Steppe Raider",
+                    maxHP: 24, dmg: 5, interval: 1.0f, range: 0.9f, speed: 1.4f,
+                    MoveBehavior.Advance, new Color(0.90f, 0.30f, 0.30f), 0.38f);
+                raider = CreateEnemy("EnemyRaider", "raider", "Steppe Raider", raiderStats, blockCost: 1, leak: 1);
+            }
 
             // 2. Input plumbing -------------------------------------------------------
             EnsureEventSystem();
@@ -105,6 +112,25 @@ namespace Malchin.EditorTools
             return def;
         }
 
+        private static EnemyDefinition CreateEnemy(string assetName, string id, string display,
+            CombatUnitDefinition stats, int blockCost, int leak)
+        {
+            string path = $"{DataFolder}/{assetName}.asset";
+            var e = AssetDatabase.LoadAssetAtPath<EnemyDefinition>(path);
+            if (e == null)
+            {
+                e = ScriptableObject.CreateInstance<EnemyDefinition>();
+                AssetDatabase.CreateAsset(e, path);
+            }
+            e.id = id;
+            e.displayName = display;
+            e.combatStats = stats;
+            e.blockCost = blockCost;
+            e.leakDamage = leak;
+            EditorUtility.SetDirty(e);
+            return e;
+        }
+
         // ── Battlefield + level ──────────────────────────────────────────────────
 
         private static BattleGrid BuildBattleGrid()
@@ -116,7 +142,7 @@ namespace Malchin.EditorTools
             return grid;
         }
 
-        private static LevelDefinition CreateSampleLevel(CombatUnitDefinition enemy)
+        private static LevelDefinition CreateSampleLevel(EnemyDefinition enemy)
         {
             string path = $"{DataFolder}/Level_01.asset";
             var lvl = AssetDatabase.LoadAssetAtPath<LevelDefinition>(path);
@@ -143,7 +169,7 @@ namespace Malchin.EditorTools
             return lvl;
         }
 
-        private static EnemySpawn Spawn(CombatUnitDefinition enemy, float time, int column)
+        private static EnemySpawn Spawn(EnemyDefinition enemy, float time, int column)
             => new EnemySpawn { enemy = enemy, time = time, column = column };
 
         [MenuItem("Malchin/Create Battle Level")]

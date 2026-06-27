@@ -128,12 +128,21 @@ namespace Malchin.Combat
 
         void SpawnFromEntry(EnemySpawn entry)
         {
-            if (entry.enemy == null) return;
+            if (entry.enemy == null || entry.enemy.combatStats == null) return;
             _enemiesAlive++;
             int col = Mathf.Clamp(entry.column, 0, level.gridWidth - 1);
             var pos = new Vector3(grid.ColumnX(col), grid.TopY + 0.4f, 0f);
-            SpawnUnit(entry.enemy, CombatTeam.Enemy, pos);
+            SpawnEnemy(entry.enemy, pos);
             UpdateHud();
+        }
+
+        CombatUnit SpawnEnemy(EnemyDefinition e, Vector3 pos)
+        {
+            var go = new GameObject($"Enemy_{e.id}");
+            go.transform.position = pos;
+            var u = go.AddComponent<CombatUnit>();
+            u.InitEnemy(e, CombatTeam.Enemy, grid.BaseY);
+            return u;
         }
 
         CombatUnit SpawnUnit(CombatUnitDefinition def, CombatTeam team, Vector3 pos)

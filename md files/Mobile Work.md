@@ -134,6 +134,21 @@ Made maps real and easy to author:
   enemies) — that's phases P5/P6. For now terrain is rendered + queryable, so the demo still
   works as before.
 
+## 9. Enemy characters (foe-side roster with abilities)
+Made enemies first-class characters, mirroring the player roster:
+- **`EnemyDefinition`** SO: stat block + the **same Talent/Skill ability system** + enemy
+  fields (`blockCost`, `leakDamage`, `isBoss`). No gacha fields (enemies aren't collectible).
+- **`CombatUnit.InitEnemy`** spawns enemies with their abilities + block/leak data; ability
+  runtime is **team-relative** so enemy skills work with zero new logic.
+- **`EnemySpawn.enemy`** now references an `EnemyDefinition` (updated `BattleController`
+  spawn + `CombatSceneSetup` sample level; custom inspector unaffected).
+- **`Malchin > Create Enemy Roster`**: Steppe Raider, Wolf Rider, Marauder Brute (armor
+  talent), Crossbow Marauder, Witch of the Wastes (heals raiders), Renegade Warlord (boss:
+  damage aura + AoE smash). Some have abilities, per the request.
+- They'll **follow the designed path** once Phase 3 lands; today they advance as before but
+  carry abilities + tower-defense data. `Setup Combat Scene` uses the roster Raider if
+  present, else builds a simple one (still self-contained).
+
 ---
 
 ## What still needs the PC (not done from mobile)
