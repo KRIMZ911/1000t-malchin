@@ -107,5 +107,20 @@ become per-unit shapes (Phase 2); enemies stay in-lane for now (pathing later). 
 phases: 2 attack-reach shapes, 3 per-character shapes, 4 visual telegraphs, 5 verify.
 Full system in `10 - Characters & Abilities.md`.
 
+## Combat core: go full Arknights — blocking + DP + paths + high/low ground + terrain (2026-06-24)
+The user chose to make the combat core a **faithful Arknights tower-defense**, not the
+simpler lane auto-battler we had. Committed pillars: a **tile map with terrain types**,
+**high vs low ground** deployment (melee on low + **block** enemies, ranged on high), a
+**DP deployment economy** (DP ticks up, units cost DP — tempo puzzle), **designed enemy
+paths** (spawn → waypoints → goal) with **life points** (leaked enemies cost life; 0 =
+defeat) replacing the single base-HP, and **facing on deploy** to orient range shapes. The
+user also wants a **data-driven terrain system** where each tile type has an effect (mud
+slows, hills boost range, shrine buffs, hazard damages, reeds conceal, river is impassable)
+— implemented by reusing the existing status-effect system as `onTileEffect`. The gacha,
+ability runtime, and AoE-shape systems already built **plug into this unchanged**. This
+supersedes the straight-down-lane Stage 1 model and the earlier "enemies stay in lane,
+pathing later" default. It's a substantial combat rebuild, so: **verify existing combat on
+the PC first**, then build in phases. Full design in `11 - Combat Core (Arknights-style).md`.
+
 ## Save format: versioned JSON, local-first (2026-06-22)
 Save is a single JSON file in `Application.persistentDataPath` carrying a `version` field and a `lastSavedUnixSeconds` timestamp. The version field exists so saves can be migrated when the schema grows and when we move local → backend (Phase 6). Partially resolves the "save data format and migration strategy" open question.

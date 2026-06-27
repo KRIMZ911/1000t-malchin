@@ -96,6 +96,17 @@ via a new `WithShape` helper):
 - **Note:** this is the skill-AoE half of Phase 3. Per-unit **attack-reach** shapes need
   Phase 2 (a `rangeShape` field + a targeting change) — **not done yet**, flagged for next.
 
+## 6. Combat core direction — full Arknights (design doc)
+After a review/pause, the user chose to make combat a **faithful Arknights tower-defense**:
+blocking, a DP deployment economy, designed enemy paths, high/low ground, and a
+**data-driven terrain system** (each tile type has an effect — mud slows, hills boost,
+shrine buffs, hazards damage, reeds conceal, rivers block). Wrote the full design (no code
+yet) to **`11 - Combat Core (Arknights-style).md`**, including how the existing gacha /
+ability / AoE-shape systems plug in unchanged, what existing code it changes, an 8-phase
+build plan, and open questions. **Key call:** verify the current (unverified) combat on the
+PC **before** starting this rebuild. Why design-first: this replaces the heart of combat
+(lanes→paths, base-HP→life points, fixed-counts→DP), so a reviewed plan beats blind code.
+
 ---
 
 ## What still needs the PC (not done from mobile)

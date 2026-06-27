@@ -33,3 +33,4 @@ A mobile, single-player **gacha strategy game** set on the **Mongolian steppe**.
 - `08 - Current Status & Handoff.md` — **where we are now + the current task (read first when resuming)**
 - `09 - Combat & Gacha Design.md` — the expanded grid-combat + gacha/collection design
 - `10 - Characters & Abilities.md` — the starter roster + the ability/effect system
+- `11 - Combat Core (Arknights-style).md` — the target combat core: blocking, DP, paths, high/low ground, terrain

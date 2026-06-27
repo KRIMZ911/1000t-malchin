@@ -61,6 +61,18 @@
 - [ ] Phase 2: per-unit **attack-reach** shapes (`rangeShape` on `CombatUnitDefinition` + targeting uses it)
 - [ ] Phase 4: visual telegraphs (draw range + AoE shapes as placeholders)
 - [ ] Phase 5: verify shapes on PC
+
+### Combat core → full Arknights (design locked, see `11`)
+- [x] Design the Arknights combat core (blocking, DP, paths, high/low ground, terrain) — 2026-06-24
+- [ ] **P0: verify existing combat on PC before refactoring**
+- [ ] P1: `TerrainDefinition` SO + one-click terrain-palette generator
+- [ ] P2: tile map in `LevelDefinition` + `BattleGrid` render/queries
+- [ ] P3: designed paths + life points (replace straight-down + base HP)
+- [ ] P4: DP deployment economy (replace fixed unit counts) + retreat/redeploy
+- [ ] P5: blocking (`blockCount`/`blockCost`)
+- [ ] P6: high/low ground deploy rules + facing on deploy
+- [ ] P7: terrain effects live (slow/hazard/buff/conceal via status effects)
+- [ ] P8: level editor for maps/paths/spawns + telegraphs + verify
 - [ ] `GachaPool` data: characters per tier + rate table (6★2/5★8/4★30/3★30/2★20/1★10) + pity config
 - [ ] Two-tier currency: Special Horses (earned) + Sky-Blue Khadag (paid); balances in save
 - [ ] Player roster persisted in save: `characterId → { count, potential }` + `pityCounter` (bump save version + migrate)
